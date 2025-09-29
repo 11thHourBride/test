@@ -696,4 +696,1192 @@
                 <h2>👤 User Dashboard</h2>
                 
                 <div class="stats">
-                    <div class="stat-ca
+                    <div class="stat-card">
+                        <h3 id="total-balance">₵0</h3>
+                        <p>Total Balance</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="daily-rate">₵0</h3>
+                        <p>Daily Rate</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="month-progress">0%</h3>
+                        <p>Month Progress</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="daily-rate-input">💰 Set Monthly Rate (GH₵)</label>
+                    <input type="number" id="daily-rate-input" placeholder="e.g., 10" min="1">
+                </div>
+                <button class="btn" id="set-rate-btn">Set Rate for <span id="current-month-name">This Month</span></button>
+            
+                <div id="rate-lock-notice" class="rate-lock-notice" style="display: none;">
+                    <div>🔒 Rate is locked for <span id="locked-month-name"></span></div>
+                    <div style="font-size: 0.9rem; margin-top: 5px;">You can change your rate next month</div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="withdrawal-amount">💸 Withdrawal Amount (GH₵)</label>
+                    <input type="number" id="withdrawal-amount" placeholder="Amount to withdraw" min="1">
+                </div>
+
+                <button class="btn" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);" id="withdrawal-btn">Process Withdrawal</button>
+            </div>
+
+            <div class="contribution-area">
+                <h2>📅 Monthly Contributions</h2>
+                
+                <div class="month-selector">
+                    <div class="month-btn active" data-month="0">Jan</div>
+                    <div class="month-btn" data-month="1">Feb</div>
+                    <div class="month-btn" data-month="2">Mar</div>
+                    <div class="month-btn" data-month="3">Apr</div>
+                    <div class="month-btn" data-month="4">May</div>
+                    <div class="month-btn" data-month="5">Jun</div>
+                    <div class="month-btn" data-month="6">Jul</div>
+                    <div class="month-btn" data-month="7">Aug</div>
+                    <div class="month-btn" data-month="8">Sep</div>
+                    <div class="month-btn" data-month="9">Oct</div>
+                    <div class="month-btn" data-month="10">Nov</div>
+                    <div class="month-btn" data-month="11">Dec</div>
+                </div>
+
+                <div id="current-month-display">
+                    <h3>January 2025</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="month-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="contribution-grid" id="contribution-grid">
+                    <!-- Days will be populated by JavaScript -->
+                </div>
+
+                <button class="btn" id="contribute-btn">
+                    💰 Select days to contribute
+                </button>
+
+                <div class="custom-contribution-section">
+                    <h4>📊 Custom Contribution Amount</h4>
+                    <p style="color: #718096; margin-bottom: 15px;">Contribute a custom amount that can cover multiple days</p>
+                    
+                    <div class="custom-amount-input">
+                        <input type="number" id="custom-amount-input" placeholder="Enter amount" min="1">
+                        <button id="custom-contribute-btn">Contribute</button>
+                    </div>
+
+                    <div id="days-coverage" class="days-coverage-display" style="display: none;">
+                        This amount will cover <strong id="coverage-days">0</strong> days of contribution
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="transaction-history">
+            <h2>📊 Transaction History</h2>
+            <div id="transactions-list">
+                <p style="text-align: center; color: #718096; padding: 20px;">No transactions yet. Start contributing to see your history here!</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, writeBatch, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoomGKHjU2iUJjjMxEDGCsLzRtIkHtqhY",
+            authDomain: "susupay-5286e.firebaseapp.com",
+            projectId: "susupay-5286e",
+            storageBucket: "susupay-5286e.firebasestorage.app",
+            messagingSenderId: "83852132974",
+            appId: "1:83852132974:web:2d8be2d1adb7e7639f5c7f",
+            measurementId: "G-EQM64CTX83"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
+        let userContributions = {};
+        let userTransactions = [];
+        let selectedDays = new Set();
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let userRates = {};
+        let commissionPaid = {};
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAuthListeners();
+            setupEventListeners();
+            setupContributionGrid();
+        });
+
+        // Initialize Firebase auth state listener
+        function initializeAuthListeners() {
+            onAuthStateChanged(auth, async (user) => {
+                console.log('Auth state changed:', user);
+                
+                if (user) {
+                    console.log('User signed in, email verified:', user.emailVerified);
+                    
+                    if (user.emailVerified) {
+                        currentUser = user;
+                        await loadUserData();
+                        showDashboard();
+                        updateUserInterface();
+                        showAlert('success', `Welcome back, ${user.displayName || user.email}!`, 'dashboard-alert-container');
+                    } else {
+                        showEmailVerification();
+                    }
+                } else {
+                    console.log('User signed out');
+                    showAuthContainer();
+                    currentUser = null;
+                    userContributions = {};
+                    userTransactions = [];
+                    userRates = {};
+                    commissionPaid = {};
+                    selectedDays.clear();
+                }
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Auth form handlers
+            document.getElementById('signin-form').addEventListener('submit', handleSignIn);
+            document.getElementById('signup-form').addEventListener('submit', handleSignUp);
+            document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword);
+            
+            // Auth toggle
+            document.getElementById('auth-toggle-btn').addEventListener('click', toggleAuthForm);
+            document.getElementById('forgot-password-link').addEventListener('click', showForgotPassword);
+            document.getElementById('back-to-login-btn').addEventListener('click', showSignInForm);
+            
+            // Google sign in
+            document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
+            
+            // Country selection
+            document.getElementById('country').addEventListener('change', updatePhoneCode);
+            
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            
+            // Email verification
+            document.getElementById('resend-verification-btn').addEventListener('click', resendVerification);
+            document.getElementById('check-verification-btn').addEventListener('click', checkEmailVerification);
+            
+            // Dashboard controls
+            document.getElementById('set-rate-btn').addEventListener('click', setUserRate);
+            document.getElementById('withdrawal-btn').addEventListener('click', processWithdrawal);
+            document.getElementById('contribute-btn').addEventListener('click', contributeToday);
+            document.getElementById('custom-contribute-btn').addEventListener('click', contributeCustomAmount);
+            document.getElementById('custom-amount-input').addEventListener('input', calculateDaysCoverage);
+            
+            // Month selector
+            document.querySelectorAll('.month-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const month = parseInt(e.target.dataset.month);
+                    selectMonth(month);
+                });
+            });
+        }
+
+        // Authentication handlers
+        async function handleSignIn(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            try {
+                const email = document.getElementById('signin-email').value;
+                const password = document.getElementById('signin-password').value;
+                
+                console.log('Attempting sign in for:', email);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log('Sign in successful:', userCredential.user.emailVerified);
+                
+                if (!userCredential.user.emailVerified) {
+                    showEmailVerification();
+                    showAlert('info', 'Please verify your email before accessing your dashboard.');
+                    return;
+                }
+                
+                // Success will be handled by onAuthStateChanged
+                
+            } catch (error) {
+                console.error('Sign in error:', error);
+                showAlert('error', getErrorMessage(error.code));
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleSignUp(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            try {
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    throw new Error('Passwords do not match');
+                }
+                
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Update profile with user data
+                const firstName = document.getElementById('first-name').value;
+                const surname = document.getElementById('surname').value;
+                
+                await updateProfile(userCredential.user, {
+                    displayName: `${firstName} ${surname}`
+                });
+                
+                // Save user data to Firestore
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    firstName: firstName,
+                    surname: surname,
+                    middleName: document.getElementById('middle-name').value,
+                    email: email,
+                    country: document.getElementById('country').value,
+                    phoneCode: document.getElementById('phone-code').value,
+                    phone: document.getElementById('phone').value,
+                    createdAt: Timestamp.now(),
+                    kycStatus: 'pending',
+                    emailVerified: false,
+                    balance: 0,
+                    totalContributions: 0,
+                    rates: {},
+                    commissionPaid: {}
+                });
+                
+                // Send verification email
+                await sendEmailVerification(userCredential.user);
+                showEmailVerification();
+                showAlert('success', 'Account created! Please check your email for verification.');
+                
+            } catch (error) {
+                console.error('Sign up error:', error);
+                showAlert('error', getErrorMessage(error.code));
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleGoogleSignIn() {
+            showLoading(true);
+            
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                
+                // Check if user exists in Firestore
+                const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+                
+                if (!userDoc.exists()) {
+                    // Create user document for new Google users
+                    const names = result.user.displayName ? result.user.displayName.split(' ') : ['User'];
+                    await setDoc(doc(db, 'users', result.user.uid), {
+                        firstName: names[0] || 'User',
+                        surname: names[1] || '',
+                        middleName: '',
+                        email: result.user.email,
+                        country: '',
+                        phoneCode: '',
+                        phone: '',
+                        createdAt: Timestamp.now(),
+                        kycStatus: 'pending',
+                        emailVerified: true,
+                        balance: 0,
+                        totalContributions: 0,
+                        rates: {},
+                        commissionPaid: {}
+                    });
+                }
+                
+                // Success will be handled by onAuthStateChanged
+                
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                showAlert('error', getErrorMessage(error.code));
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            showLoading(true);
+            
+            try {
+                const email = document.getElementById('reset-email').value;
+                await sendPasswordResetEmail(auth, email);
+                showAlert('success', 'Password reset email sent! Check your inbox.');
+                showSignInForm();
+            } catch (error) {
+                showAlert('error', getErrorMessage(error.code));
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // User data management
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                console.log('Loading user data for:', currentUser.uid);
+                
+                // Load user profile
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    userRates = userData.rates || {};
+                    commissionPaid = userData.commissionPaid || {};
+                    populateUserInterface(userData);
+                    console.log('User data loaded successfully');
+                } else {
+                    console.log('User document does not exist');
+                }
+                
+                // Load contributions
+                await loadContributions();
+                
+                // Load transactions
+                await loadTransactions();
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showAlert('error', 'Failed to load user data', 'dashboard-alert-container');
+            }
+        }
+
+        async function loadContributions() {
+            try {
+                const contributionsRef = collection(db, 'contributions');
+                const q = query(
+                    contributionsRef, 
+                    where('userId', '==', currentUser.uid),
+                    orderBy('date', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                userContributions = {};
+                
+                querySnapshot.forEach((docSnapshot) => {
+                    const contribution = docSnapshot.data();
+                    const date = contribution.date.toDate();
+                    const dateKey = date.toISOString().split('T')[0];
+                    userContributions[dateKey] = {
+                        ...contribution,
+                        id: docSnapshot.id
+                    };
+                });
+                
+                updateContributionGrid();
+                
+            } catch (error) {
+                console.error('Error loading contributions:', error);
+            }
+        }
+
+        async function loadTransactions() {
+            try {
+                const transactionsRef = collection(db, 'transactions');
+                const q = query(
+                    transactionsRef,
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                userTransactions = [];
+                
+                querySnapshot.forEach((docSnapshot) => {
+                    userTransactions.push({
+                        id: docSnapshot.id,
+                        ...docSnapshot.data()
+                    });
+                });
+                
+                updateTransactionHistory();
+                
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+            }
+        }
+
+        // Contribution system
+        function setupContributionGrid() {
+            updateContributionGrid();
+            updateMonthSelector();
+        }
+
+        function updateContributionGrid() {
+            const grid = document.getElementById('contribution-grid');
+            const daysInMonth = 31; // Always 31 days as requested
+            
+            grid.innerHTML = '';
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                dayCell.textContent = day;
+                dayCell.dataset.day = day;
+                
+                const dateKey = getDateKey(currentYear, currentMonth, day);
+                const contribution = userContributions[dateKey];
+                
+                if (contribution) {
+                    switch (contribution.status) {
+                        case 'approved':
+                            dayCell.classList.add('contributed');
+                            break;
+                        case 'pending':
+                            dayCell.classList.add('contribution-pending');
+                            break;
+                        case 'rejected':
+                            dayCell.classList.add('contribution-rejected');
+                            break;
+                    }
+                } else if (selectedDays.has(day)) {
+                    dayCell.classList.add('selected');
+                }
+                
+                dayCell.addEventListener('click', () => toggleDaySelection(day));
+                grid.appendChild(dayCell);
+            }
+            
+            updateSelectedDaysDisplay();
+            updateMonthProgress();
+        }
+
+        function toggleDaySelection(day) {
+            const dateKey = getDateKey(currentYear, currentMonth, day);
+            const contribution = userContributions[dateKey];
+            
+            // Don't allow selection of already contributed days
+            if (contribution && contribution.status === 'approved') {
+                return;
+            }
+            
+            const dayCell = document.querySelector(`[data-day="${day}"]`);
+            
+            if (selectedDays.has(day)) {
+                selectedDays.delete(day);
+                dayCell.classList.remove('selected');
+            } else {
+                selectedDays.add(day);
+                dayCell.classList.add('selected');
+            }
+            
+            updateSelectedDaysDisplay();
+        }
+
+        function updateSelectedDaysDisplay() {
+            const monthRate = getCurrentMonthRate();
+            const amount = selectedDays.size * monthRate;
+            
+            const button = document.getElementById('contribute-btn');
+            button.disabled = selectedDays.size === 0 || monthRate === 0;
+            
+            if (selectedDays.size > 0) {
+                button.textContent = `💰 Contribute Selected Days (${selectedDays.size} days - ₵${amount})`;
+            } else {
+                button.textContent = '💰 Select days to contribute';
+            }
+        }
+
+        function getCurrentMonthRate() {
+            const monthKey = `${currentYear}-${currentMonth}`;
+            return userRates[monthKey] || 0;
+        }
+
+        async function contributeToday() {
+            if (selectedDays.size === 0) {
+                showAlert('error', 'Please select at least one day to contribute', 'dashboard-alert-container');
+                return;
+            }
+            
+            const monthRate = getCurrentMonthRate();
+            if (monthRate === 0) {
+                showAlert('error', 'Please set a rate for this month first', 'dashboard-alert-container');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const batch = writeBatch(db);
+                const totalAmount = selectedDays.size * monthRate;
+                
+                // Create contribution records for each selected day
+                for (const day of selectedDays) {
+                    const contributionRef = doc(collection(db, 'contributions'));
+                    const contributionDate = new Date(currentYear, currentMonth, day);
+                    
+                    batch.set(contributionRef, {
+                        userId: currentUser.uid,
+                        date: Timestamp.fromDate(contributionDate),
+                        amount: monthRate,
+                        status: 'pending',
+                        createdAt: Timestamp.now(),
+                        month: currentMonth,
+                        year: currentYear
+                    });
+                }
+                
+                // Create transaction record
+                const transactionRef = doc(collection(db, 'transactions'));
+                batch.set(transactionRef, {
+                    userId: currentUser.uid,
+                    type: 'contribution',
+                    amount: totalAmount,
+                    status: 'pending',
+                    createdAt: Timestamp.now(),
+                    description: `Contribution for ${selectedDays.size} days in ${getMonthName(currentMonth)} ${currentYear}`,
+                    days: Array.from(selectedDays),
+                    month: currentMonth,
+                    year: currentYear
+                });
+                
+                await batch.commit();
+                
+                // Send email notification (placeholder)
+                await sendEmailNotification('contribution_pending', {
+                    amount: totalAmount,
+                    days: selectedDays.size,
+                    month: getMonthName(currentMonth),
+                    year: currentYear
+                });
+                
+                selectedDays.clear();
+                await loadContributions();
+                await loadTransactions();
+                
+                showAlert('success', `Contribution of ₵${totalAmount} for ${selectedDays.size} days submitted successfully! Pending approval.`, 'dashboard-alert-container');
+                
+            } catch (error) {
+                console.error('Error processing contribution:', error);
+                showAlert('error', 'Failed to process contribution', 'dashboard-alert-container');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function calculateDaysCoverage() {
+            const customAmount = parseFloat(document.getElementById('custom-amount-input').value) || 0;
+            const monthRate = getCurrentMonthRate();
+            
+            if (monthRate > 0) {
+                const days = Math.floor(customAmount / monthRate);
+                document.getElementById('coverage-days').textContent = days;
+                document.getElementById('days-coverage').style.display = days > 0 ? 'block' : 'none';
+                
+                const button = document.getElementById('custom-contribute-btn');
+                button.disabled = days === 0;
+            }
+        }
+
+        async function contributeCustomAmount() {
+            const customAmount = parseFloat(document.getElementById('custom-amount-input').value) || 0;
+            const monthRate = getCurrentMonthRate();
+            
+            if (customAmount <= 0) {
+                showAlert('error', 'Please enter a valid amount', 'dashboard-alert-container');
+                return;
+            }
+            
+            if (monthRate === 0) {
+                showAlert('error', 'Please set a rate for this month first', 'dashboard-alert-container');
+                return;
+            }
+            
+            const daysCovered = Math.floor(customAmount / monthRate);
+            if (daysCovered === 0) {
+                showAlert('error', 'Amount is too small to cover any days', 'dashboard-alert-container');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Find available days to contribute
+                const availableDays = [];
+                for (let day = 1; day <= 31; day++) {
+                    const dateKey = getDateKey(currentYear, currentMonth, day);
+                    const contribution = userContributions[dateKey];
+                    
+                    if (!contribution || contribution.status === 'rejected') {
+                        availableDays.push(day);
+                    }
+                    
+                    if (availableDays.length >= daysCovered) break;
+                }
+                
+                if (availableDays.length < daysCovered) {
+                    showAlert('error', 'Not enough available days in this month', 'dashboard-alert-container');
+                    return;
+                }
+                
+                const batch = writeBatch(db);
+                
+                // Create contribution records
+                for (let i = 0; i < daysCovered; i++) {
+                    const day = availableDays[i];
+                    const contributionRef = doc(collection(db, 'contributions'));
+                    const contributionDate = new Date(currentYear, currentMonth, day);
+                    
+                    batch.set(contributionRef, {
+                        userId: currentUser.uid,
+                        date: Timestamp.fromDate(contributionDate),
+                        amount: monthRate,
+                        status: 'pending',
+                        createdAt: Timestamp.now(),
+                        month: currentMonth,
+                        year: currentYear
+                    });
+                }
+                
+                // Create transaction record
+                const transactionRef = doc(collection(db, 'transactions'));
+                batch.set(transactionRef, {
+                    userId: currentUser.uid,
+                    type: 'contribution',
+                    amount: customAmount,
+                    status: 'pending',
+                    createdAt: Timestamp.now(),
+                    description: `Custom contribution covering ${daysCovered} days in ${getMonthName(currentMonth)} ${currentYear}`,
+                    days: availableDays.slice(0, daysCovered),
+                    month: currentMonth,
+                    year: currentYear
+                });
+                
+                await batch.commit();
+                
+                // Send email notification (placeholder)
+                await sendEmailNotification('contribution_pending', {
+                    amount: customAmount,
+                    days: daysCovered,
+                    month: getMonthName(currentMonth),
+                    year: currentYear
+                });
+                
+                document.getElementById('custom-amount-input').value = '';
+                document.getElementById('days-coverage').style.display = 'none';
+                
+                await loadContributions();
+                await loadTransactions();
+                
+                showAlert('success', `Custom contribution of ₵${customAmount} covering ${daysCovered} days submitted successfully! Pending approval.`, 'dashboard-alert-container');
+                
+            } catch (error) {
+                console.error('Error processing custom contribution:', error);
+                showAlert('error', 'Failed to process contribution', 'dashboard-alert-container');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Rate management
+        async function setUserRate() {
+            const rateInput = document.getElementById('daily-rate-input');
+            const newRate = parseFloat(rateInput.value);
+            
+            if (!newRate || newRate <= 0) {
+                showAlert('error', 'Please enter a valid rate', 'dashboard-alert-container');
+                return;
+            }
+            
+            const monthKey = `${currentYear}-${currentMonth}`;
+            
+            // Check if rate is already locked for current month
+            if (userRates[monthKey] && hasContributionsThisMonth()) {
+                showAlert('error', 'Rate is locked for this month as you already have contributions', 'dashboard-alert-container');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                userRates[monthKey] = newRate;
+                
+                // Update user document
+                await setDoc(doc(db, 'users', currentUser.uid), {
+                    rates: userRates
+                }, { merge: true });
+                
+                updateRateDisplay();
+                updateSelectedDaysDisplay();
+                showAlert('success', `Rate set to ₵${newRate} for ${getMonthName(currentMonth)} ${currentYear}`, 'dashboard-alert-container');
+                
+                rateInput.value = '';
+                
+            } catch (error) {
+                console.error('Error setting rate:', error);
+                showAlert('error', 'Failed to set rate', 'dashboard-alert-container');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function hasContributionsThisMonth() {
+            return Object.keys(userContributions).some(dateKey => {
+                const contribution = userContributions[dateKey];
+                return contribution.month === currentMonth && 
+                       contribution.year === currentYear && 
+                       contribution.status !== 'rejected';
+            });
+        }
+
+        function updateRateDisplay() {
+            const monthRate = getCurrentMonthRate();
+            document.getElementById('daily-rate').textContent = `₵${monthRate}`;
+            
+            const monthName = getMonthName(currentMonth);
+            document.getElementById('current-month-name').textContent = monthName;
+            
+            // Show/hide rate lock notice
+            const rateLockNotice = document.getElementById('rate-lock-notice');
+            const setRateBtn = document.getElementById('set-rate-btn');
+            
+            if (monthRate > 0 && hasContributionsThisMonth()) {
+                rateLockNotice.style.display = 'block';
+                document.getElementById('locked-month-name').textContent = monthName;
+                setRateBtn.disabled = true;
+                setRateBtn.innerHTML = `Rate Locked for ${monthName}`;
+            } else {
+                rateLockNotice.style.display = 'none';
+                setRateBtn.disabled = false;
+                setRateBtn.innerHTML = `Set Rate for <span id="current-month-name">${monthName}</span>`;
+            }
+        }
+
+        // Withdrawal system
+        async function processWithdrawal() {
+            const withdrawalInput = document.getElementById('withdrawal-amount');
+            const amount = parseFloat(withdrawalInput.value);
+            
+            if (!amount || amount <= 0) {
+                showAlert('error', 'Please enter a valid withdrawal amount', 'dashboard-alert-container');
+                return;
+            }
+            
+            // Check user balance
+            const userBalance = await calculateUserBalance();
+            if (amount > userBalance) {
+                showAlert('error', 'Insufficient balance', 'dashboard-alert-container');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Check if commission needs to be deducted for this month
+                const monthKey = `${currentYear}-${currentMonth}`;
+                const monthRate = getCurrentMonthRate();
+                let finalAmount = amount;
+                let commissionDeducted = 0;
+                
+                if (!commissionPaid[monthKey] && monthRate > 0) {
+                    commissionDeducted = monthRate;
+                    finalAmount = Math.max(0, amount - commissionDeducted);
+                    commissionPaid[monthKey] = true;
+                    
+                    // Update commission paid record
+                    await setDoc(doc(db, 'users', currentUser.uid), {
+                        commissionPaid: commissionPaid
+                    }, { merge: true });
+                }
+                
+                // Create withdrawal transaction
+                const transactionRef = doc(collection(db, 'transactions'));
+                await setDoc(transactionRef, {
+                    userId: currentUser.uid,
+                    type: 'withdrawal',
+                    requestedAmount: amount,
+                    finalAmount: finalAmount,
+                    commissionDeducted: commissionDeducted,
+                    status: 'pending',
+                    createdAt: Timestamp.now(),
+                    description: `Withdrawal request for ₵${amount}${commissionDeducted > 0 ? ` (₵${commissionDeducted} commission deducted)` : ''}`,
+                    month: currentMonth,
+                    year: currentYear
+                });
+                
+                // Send email notification (placeholder)
+                await sendEmailNotification('withdrawal_pending', {
+                    requestedAmount: amount,
+                    finalAmount: finalAmount,
+                    commissionDeducted: commissionDeducted
+                });
+                
+                withdrawalInput.value = '';
+                await loadTransactions();
+                
+                showAlert('success', `Withdrawal request for ₵${amount} submitted successfully! ${commissionDeducted > 0 ? `(₵${commissionDeducted} commission deducted)` : ''} Pending approval.`, 'dashboard-alert-container');
+                
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                showAlert('error', 'Failed to process withdrawal', 'dashboard-alert-container');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function calculateUserBalance() {
+            // Calculate balance from approved contributions minus approved withdrawals
+            let balance = 0;
+            
+            for (const transaction of userTransactions) {
+                if (transaction.status === 'approved') {
+                    if (transaction.type === 'contribution') {
+                        balance += transaction.amount;
+                    } else if (transaction.type === 'withdrawal') {
+                        balance -= transaction.finalAmount || transaction.amount;
+                    }
+                }
+            }
+            
+            return Math.max(0, balance);
+        }
+
+        // Month navigation
+        function selectMonth(month) {
+            currentMonth = month;
+            updateMonthSelector();
+            updateContributionGrid();
+            updateRateDisplay();
+            
+            // Update month display
+            document.getElementById('current-month-display').querySelector('h3').textContent = `${getMonthName(month)} ${currentYear}`;
+            selectedDays.clear();
+        }
+
+        function updateMonthSelector() {
+            const monthButtons = document.querySelectorAll('.month-btn');
+            const currentDate = new Date();
+            const currentRealMonth = currentDate.getMonth();
+            const currentRealYear = currentDate.getFullYear();
+            
+            monthButtons.forEach((btn, index) => {
+                btn.classList.remove('active');
+                
+                if (index === currentMonth) {
+                    btn.classList.add('active');
+                }
+                
+                // Enable navigation to previous months and current month
+                // Future months are enabled only if current month is completed
+                if (currentYear < currentRealYear || 
+                    (currentYear === currentRealYear && index <= currentRealMonth) ||
+                    isMonthCompleted(index - 1)) {
+                    btn.disabled = false;
+                } else {
+                    btn.disabled = true;
+                }
+            });
+        }
+
+        function isMonthCompleted(month) {
+            if (month < 0) return true;
+            
+            let contributedDays = 0;
+            const monthKey = `${currentYear}-${month}`;
+            const monthRate = userRates[monthKey];
+            
+            if (!monthRate) return false;
+            
+            for (let day = 1; day <= 31; day++) {
+                const dateKey = getDateKey(currentYear, month, day);
+                const contribution = userContributions[dateKey];
+                
+                if (contribution && contribution.status === 'approved') {
+                    contributedDays++;
+                }
+            }
+            
+            return contributedDays >= 31; // All days contributed
+        }
+
+        function updateMonthProgress() {
+            let contributedDays = 0;
+            
+            for (let day = 1; day <= 31; day++) {
+                const dateKey = getDateKey(currentYear, currentMonth, day);
+                const contribution = userContributions[dateKey];
+                
+                if (contribution && contribution.status === 'approved') {
+                    contributedDays++;
+                }
+            }
+            
+            const progress = (contributedDays / 31) * 100;
+            document.getElementById('month-progress-bar').style.width = `${progress}%`;
+            document.getElementById('month-progress').textContent = `${Math.round(progress)}%`;
+        }
+
+        // Transaction history
+        function updateTransactionHistory() {
+            const transactionsList = document.getElementById('transactions-list');
+            
+            if (userTransactions.length === 0) {
+                transactionsList.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No transactions yet. Start contributing to see your history here!</p>';
+                return;
+            }
+            
+            transactionsList.innerHTML = '';
+            
+            userTransactions.forEach(transaction => {
+                const transactionItem = document.createElement('div');
+                transactionItem.className = 'transaction-item';
+                
+                const statusClass = `status-${transaction.status}`;
+                const typeClass = transaction.type === 'contribution' ? 'contribution' : 'withdrawal';
+                
+                let amountDisplay = `₵${transaction.amount}`;
+                if (transaction.type === 'withdrawal' && transaction.finalAmount !== transaction.amount) {
+                    amountDisplay = `₵${transaction.finalAmount} (₵${transaction.requestedAmount} requested)`;
+                }
+                
+                const createdAt = transaction.createdAt.toDate();
+                
+                transactionItem.innerHTML = `
+                    <div>
+                        <div class="transaction-type ${typeClass}">${transaction.type.toUpperCase()}</div>
+                        <div style="font-size: 0.9rem; color: #718096; margin-top: 5px;">${transaction.description}</div>
+                        <div style="font-size: 0.9rem; color: #718096; margin-top: 5px;">${createdAt.toLocaleDateString()}</div>
+                        ${transaction.rejectionReason ? `
+                            <div style="background: #fed7d7; border: 1px solid #feb2b2; border-radius: 8px; padding: 10px; margin-top: 10px; color: #742a2a; font-size: 0.9rem;">
+                                <div style="font-weight: 600; margin-bottom: 5px;">Rejection Reason:</div>
+                                ${transaction.rejectionReason}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 1.1rem;">${amountDisplay}</div>
+                        <div class="transaction-status ${statusClass}">${transaction.status.toUpperCase()}</div>
+                    </div>
+                `;
+                
+                transactionsList.appendChild(transactionItem);
+            });
+        }
+
+        // Email notifications (placeholder)
+        async function sendEmailNotification(type, data) {
+            try {
+                // In a real implementation, this would call a cloud function or external service
+                console.log(`Email notification: ${type}`, data);
+                // You would implement actual email sending here
+            } catch (error) {
+                console.error('Error sending email notification:', error);
+            }
+        }
+
+        // UI Helper functions
+        function showDashboard() {
+            console.log('Showing dashboard');
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('verification-container').style.display = 'none';
+            document.getElementById('dashboard-container').style.display = 'block';
+            document.body.style.alignItems = 'flex-start';
+            document.body.style.justifyContent = 'flex-start';
+        }
+
+        function showAuthContainer() {
+            console.log('Showing auth container');
+            document.getElementById('auth-container').style.display = 'block';
+            document.getElementById('verification-container').style.display = 'none';
+            document.getElementById('dashboard-container').style.display = 'none';
+            document.body.style.alignItems = 'center';
+            document.body.style.justifyContent = 'center';
+        }
+
+        function showEmailVerification() {
+            console.log('Showing email verification');
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('verification-container').style.display = 'block';
+            document.getElementById('dashboard-container').style.display = 'none';
+            
+            if (currentUser) {
+                document.getElementById('verification-email').textContent = currentUser.email;
+            }
+        }
+
+        function showSignInForm() {
+            document.getElementById('signin-form').style.display = 'block';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('forgot-password-form').style.display = 'none';
+            document.getElementById('auth-toggle-text').textContent = "Don't have an account?";document.getElementById('auth-toggle-btn').textContent = 'Sign Up';
+        }
+
+        function showSignUpForm() {
+            document.getElementById('signin-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+            document.getElementById('forgot-password-form').style.display = 'none';
+            document.getElementById('auth-toggle-text').textContent = 'Already have an account?';
+            document.getElementById('auth-toggle-btn').textContent = 'Sign In';
+        }
+
+        function showForgotPassword(e) {
+            e.preventDefault();
+            document.getElementById('signin-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('forgot-password-form').style.display = 'block';
+        }
+
+        function toggleAuthForm() {
+            const signinForm = document.getElementById('signin-form');
+            const isSigninVisible = signinForm.style.display !== 'none';
+            
+            if (isSigninVisible) {
+                showSignUpForm();
+            } else {
+                showSignInForm();
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showAlert(type, message, containerId = 'alert-container') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        function updatePhoneCode() {
+            const countrySelect = document.getElementById('country');
+            const phoneCodeSelect = document.getElementById('phone-code');
+            
+            if (countrySelect.value) {
+                const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+                const phoneCode = selectedOption.dataset.code;
+                
+                phoneCodeSelect.innerHTML = `<option value="${phoneCode}">${phoneCode}</option>`;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                showLoading(true);
+                await signOut(auth);
+                showAlert('success', 'Successfully signed out');
+            } catch (error) {
+                showAlert('error', 'Failed to sign out');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function resendVerification() {
+            if (currentUser && !currentUser.emailVerified) {
+                try {
+                    showLoading(true);
+                    await sendEmailVerification(currentUser);
+                    showAlert('success', 'Verification email sent!');
+                } catch (error) {
+                    showAlert('error', 'Failed to send verification email');
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        async function checkEmailVerification() {
+            if (currentUser) {
+                try {
+                    showLoading(true);
+                    await currentUser.reload();
+                    if (currentUser.emailVerified) {
+                        await loadUserData();
+                        showDashboard();
+                        updateUserInterface();
+                        showAlert('success', 'Email verified successfully!', 'dashboard-alert-container');
+                    } else {
+                        showAlert('error', 'Email not yet verified. Please check your email.');
+                    }
+                } catch (error) {
+                    showAlert('error', 'Failed to check verification status');
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        function populateUserInterface(userData) {
+            const displayName = userData.firstName + (userData.surname ? ` ${userData.surname}` : '');
+            document.getElementById('user-display-name').textContent = displayName;
+            document.getElementById('user-email').textContent = userData.email;
+            document.getElementById('user-avatar').textContent = userData.firstName.charAt(0).toUpperCase();
+        }
+
+        function updateUserInterface() {
+            updateRateDisplay();
+            updateSelectedDaysDisplay();
+            updateMonthProgress();
+            updateContributionGrid();
+            updateTransactionHistory();
+            updateBalanceDisplay();
+        }
+
+        async function updateBalanceDisplay() {
+            const balance = await calculateUserBalance();
+            document.getElementById('total-balance').textContent = `₵${balance.toFixed(2)}`;
+        }
+
+        // Utility functions
+        function getDateKey(year, month, day) {
+            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+
+        function getMonthName(month) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[month];
+        }
+
+        function getErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/user-not-found': 'No account found with this email address.',
+                'auth/wrong-password': 'Incorrect password.',
+                'auth/email-already-in-use': 'An account with this email already exists.',
+                'auth/weak-password': 'Password should be at least 6 characters.',
+                'auth/invalid-email': 'Invalid email address.',
+                'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+                'auth/user-disabled': 'This account has been disabled.',
+                'auth/operation-not-allowed': 'This sign-in method is not enabled.',
+                'auth/requires-recent-login': 'Please sign in again to complete this action.',
+                'auth/invalid-credential': 'Invalid login credentials. Please check your email and password.'
+            };
+            
+            return errorMessages[errorCode] || 'An error occurred. Please try again.';
+        }
+
+    </script>
+</body>
+</html>
