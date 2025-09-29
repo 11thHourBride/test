@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome To SusuPay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .auth-title {
+            color: #4a5568;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #4a5568;
+            transition: all 0.2s ease;
+            background-color: #fff;
+            line-height: 1.5;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .country-select {
+            flex: 0 0 120px;
+        }
+
+        .phone-input {
+            flex: 1;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-google {
+            background: #db4437;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .verification-container {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .dashboard-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .user-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .contribution-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .month-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .month-btn {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .month-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .month-btn:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .contribution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .day-cell.selected {
+            background: #ebf8ff;
+            border-color: #667eea;
+        }
+
+        .day-cell.contributed {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .day-cell.contribution-pending {
+            background: linear-gradient(135deg, #f6cc33 0%, #e6b800 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .day-cell.contribution-rejected {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .custom-amount-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .custom-amount-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .custom-amount-input button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .days-coverage-display {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .transaction-history {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: #f7fafc;
+        }
+
+        .transaction-type {
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .contribution {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .withdrawal {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .transaction-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #744210;
+        }
+
+        .status-approved {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-rejected {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .rate-lock-notice {
+            background: #ebf8ff;
+            border: 2px solid #90cdf4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #2b6cb0;
+        }
+
+        .custom-contribution-section {
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .auth-toggle {
+            margin-top: 20px;
+            color: #718096;
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: inherit;
+        }
+
+        .forgot-password-link {
+            display: block;
+            text-align: right;
+            margin-top: 8px;
+            color: #667eea;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .phone-input-group {
+                flex-direction: column;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .custom-amount-input {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Container -->
+    <div class="auth-container" id="auth-container">
+        <div class="logo">🏦</div>
+        <h1 class="auth-title">SusuPay</h1>
+        <p class="auth-subtitle">Professional Daily Savings</p>
+
+        <div id="alert-container"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <!-- Sign In Form -->
+        <form id="signin-form">
+            <div class="form-group">
+                <label for="signin-email">Email Address</label>
+                <input type="email" id="signin-email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="signin-password">Password</label>
+                <input type="password" id="signin-password" required>
+                <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn" id="signin-submit-btn">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Forgot Password Form (initially hidden) -->
+        <form id="forgot-password-form" style="display: none;">
+            <div class="form-group">
+                <label for="reset-email">Enter your email address</label>
+                <input type="email" id="reset-email" required>
+            </div>
+
+            <button type="submit" class="btn" id="reset-password-btn">
+                Send Reset Link
+            </button>
+
+            <button type="button" class="btn btn-secondary" id="back-to-login-btn">
+                Back to Login
+            </button>
+        </form>
+
+        <!-- Sign Up Form (initially hidden) -->
+        <form id="signup-form" style="display: none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first-name">First Name *</label>
+                    <input type="text" id="first-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="surname">Surname *</label>
+                    <input type="text" id="surname" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="middle-name">Middle Name (Optional)</label>
+                <input type="text" id="middle-name">
+            </div>
+
+            <div class="form-group">
+                <label for="signup-email">Email Address *</label>
+                <input type="email" id="signup-email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country *</label>
+                <select id="country" required>
+                    <option value="">Select your country</option>
+                    <option value="US" data-code="+1">🇺🇸 United States (+1)</option>
+                    <option value="GB" data-code="+44">🇬🇧 United Kingdom (+44)</option>
+                    <option value="GH" data-code="+233">🇬🇭 Ghana (+233)</option>
+                    <option value="NG" data-code="+234">🇳🇬 Nigeria (+234)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <div class="phone-input-group">
+                    <select id="phone-code" class="country-select" required>
+                        <option value="">Code</option>
+                    </select>
+                    <input type="tel" id="phone" class="phone-input" placeholder="123456789" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="signup-password">Password *</label>
+                <input type="password" id="signup-password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password *</label>
+                <input type="password" id="confirm-password" required minlength="6">
+            </div>
+
+            <button type="submit" class="btn" id="signup-submit-btn">
+                Create Account
+            </button>
+        </form>
+
+        <button class="btn btn-google" id="google-signin-btn">
+            <span>🔍</span>
+            Continue with Google
+        </button>
+
+        <div class="auth-toggle">
+            <span id="auth-toggle-text">Don't have an account?</span>
+            <button type="button" id="auth-toggle-btn">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Email Verification Container -->
+    <div class="auth-container verification-container" id="verification-container">
+        <div style="font-size: 4rem; margin-bottom: 20px; color: #48bb78;">📧</div>
+        <h2 style="color: #4a5568; font-size: 1.5rem; font-weight: 600; margin-bottom: 15px;">Verify Your Email</h2>
+        <p style="color: #718096; margin-bottom: 30px; line-height: 1.6;">
+            We've sent a verification link to <strong id="verification-email"></strong>. 
+            Please check your email and click the link to verify your account.
+        </p>
+        <button class="btn" id="resend-verification-btn">Resend Verification Email</button>
+        <button class="btn btn-secondary" id="check-verification-btn">I've verified my email</button>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container" id="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1>🏦 SusuPay</h1>
+                <p>Professional Daily Savings & Contribution Management</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div>
+                    <div id="user-display-name">User</div>
+                    <div id="user-email" style="font-size: 0.9rem; color: #718096;"></div>
+                </div>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </div>
+
+        <div id="dashboard-alert-container"></div>
+
+        <div class="dashboard">
+            <div class="user-panel">
+                <h2>👤 User Dashboard</h2>
+                
+                <div class="stats">
+                    <div class="stat-ca
