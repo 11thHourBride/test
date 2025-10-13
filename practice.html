@@ -1,5 +1,4 @@
-
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -41,8 +41,8 @@
         body.dark-mode {
             --primary-gradient: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
             --accent-color: #4c4eaf;
-            --text-primary: #ff0101;
-            --text-secondary: #b8cee685;
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e0;
             --bg-light: rgba(45, 55, 72, 0.98);
             --shadow-soft: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -72,6 +72,122 @@
             pointer-events: none;
             z-index: -1;
         }
+        /* Biometric & Google Auth Styles */
+.biometric-btn {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.biometric-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+}
+
+.biometric-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.google-signin-btn {
+    background: white;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.google-signin-btn:hover {
+    border-color: #4285f4;
+    background: #f7fafc;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-divider span {
+    padding: 0 10px;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.auth-method-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.auth-method-option {
+    padding: 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-method-option:hover {
+    border-color: #667eea;
+    background: #f7fafc;
+}
+
+.auth-method-option.selected {
+    border-color: #667eea;
+    background: #ebf8ff;
+}
+
+.biometric-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.biometric-status.enabled {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.biometric-status.disabled {
+    background: #fed7d7;
+    color: #742a2a;
+}
 
         /* VIP Badge Styles */
         .vip-badge {
@@ -906,17 +1022,41 @@
             <p class="auth-subtitle">Professional Daily Savings Platform</p>
             <div id="auth-alert"></div>
 
-            <form id="signin-form">
-                <div class="form-group">
-                    <label for="signin-email">Email Address</label>
-                    <input type="email" id="signin-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="signin-password">Password</label>
-                    <input type="password" id="signin-password" required>
-                </div>
-                <button type="submit" class="btn">Sign In</button>
-            </form>
+         <form id="signin-form">
+    <div class="form-group">
+        <label for="signin-email">Email Address</label>
+        <input type="email" id="signin-email" required>
+    </div>
+    <div class="form-group">
+        <label for="signin-password">Password</label>
+        <input type="password" id="signin-password" required>
+    </div>
+    <button type="submit" class="btn">Sign In</button>
+    
+    <div class="auth-divider">
+        <span>OR</span>
+    </div>
+    
+    <button type="button" class="google-signin-btn" id="google-signin-btn">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Continue with Google
+    </button>
+
+    <div id="biometric-signin-container" style="display: none;">
+        <div class="auth-divider">
+            <span>OR</span>
+        </div>
+        <button type="button" class="biometric-btn" id="biometric-signin-btn">
+            <span style="font-size: 1.5rem;">👆</span>
+            Sign in with Fingerprint
+        </button>
+    </div>
+</form>
 
             <form id="signup-form" class="hidden">
                 <div class="form-group">
@@ -943,9 +1083,22 @@
                     <label for="referral-code-input">Referral Code (Optional)</label>
                     <input type="text" id="referral-code-input" placeholder="Enter referral code">
                 </div>
-                <button type="submit" class="btn">Create Account</button>
+             <button type="submit" class="btn">Create Account</button>
+                
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+                
+                <button type="button" class="google-signin-btn" id="google-signup-btn">
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    Sign up with Google
+                </button>
             </form>
-
             <div style="text-align: center; margin-top: 20px; color: #718096;">
                 <span id="auth-toggle-text">Don't have an account?</span>
                 <button type="button" id="auth-toggle-btn" style="background: none; border: none; color: #667eea; cursor: pointer; text-decoration: underline; font-size: inherit;">Sign Up</button>
@@ -1231,7 +1384,7 @@
                 <button class="btn" id="contribute-btn">Proceed to Payment</button>
             </div>
         </div>
-
+        
         <!-- Withdrawals Page -->
         <div id="withdrawals-page" class="page-content hidden">
             <h2 style="margin-bottom: 20px; color: #ffffff;">Process Withdrawal</h2>
@@ -1257,8 +1410,30 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Authentication Method</label>
+                    <div class="auth-method-selector">
+                        <div class="auth-method-option selected" data-auth="password">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">🔑</div>
+                            <div style="font-weight: 600;">Password</div>
+                        </div>
+                        <div class="auth-method-option" data-auth="fingerprint" id="fingerprint-auth-option">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">👆</div>
+                            <div style="font-weight: 600;">Fingerprint</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="password-auth-container">
                     <label for="withdrawal-password">Withdrawal Password</label>
                     <input type="password" id="withdrawal-password" placeholder="Enter your withdrawal password">
+                </div>
+
+                <div id="fingerprint-auth-container" style="display: none;">
+                
+                    <button type="button" class="biometric-btn" id="authenticate-fingerprint-btn">
+                        <span style="font-size: 1.5rem;">👆</span>
+                        Authenticate with Fingerprint
+                    </button>
                 </div>
 
                 <button class="btn" id="process-withdrawal-btn">Process Withdrawal</button>
@@ -1531,6 +1706,27 @@
                     <button type="submit" class="btn">Update Withdrawal Password</button>
                 </form>
             </div>
+            <div class="card">
+                <h3 style="margin-bottom: 20px; color: #4a5568;">👆 Biometric Authentication</h3>
+                
+                <div id="biometric-status-display" class="biometric-status disabled">
+                    <span style="font-size: 1.5rem;">❌</span>
+                    <span>Biometric authentication not set up</span>
+                </div>
+                
+                <p style="color: #718096; margin-bottom: 20px;">
+                    Enable fingerprint authentication for quick and secure sign-ins and withdrawals.
+                </p>
+                
+                <button type="button" class="btn" id="setup-biometric-btn">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">👆</span>
+                    Set Up Fingerprint Authentication
+                </button>
+                
+                <button type="button" class="btn" id="remove-biometric-btn" style="display: none; background: #e53e3e; margin-top: 10px;">
+                    Remove Fingerprint Authentication
+                </button>
+            </div>
 
             <div class="card">
                 <h3 style="margin-bottom: 20px; color: #4a5568;">🔑 Change Account Password</h3>
@@ -1687,18 +1883,20 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword, 
-            onAuthStateChanged, 
-            signOut, 
-            sendEmailVerification,
-            reauthenticateWithCredential,
-            EmailAuthProvider,
-            sendPasswordResetEmail,
-            updatePassword
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+       import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    onAuthStateChanged, 
+    signOut, 
+    sendEmailVerification,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
+    sendPasswordResetEmail,
+    updatePassword,
+    GoogleAuthProvider,
+    signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
             getFirestore, 
             doc, 
@@ -1722,9 +1920,10 @@
             appId: "1:83852132974:web:2d8be2d1adb7e7639f5c7f"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+       const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
 
         let currentUser = null;
         let userData = null;
@@ -1739,6 +1938,8 @@
         let mediaStream = null;
         let withdrawalAttempts = 0;
         let notifications = [];
+        let biometricAuthenticated = false;
+        let selectedWithdrawalAuthMethod = 'password';
 
         const cryptoAddresses = {
             usdt: {
@@ -1759,7 +1960,154 @@
             }
             return code;
         }
+// Biometric Authentication Functions
+async function checkBiometricSupport() {
+    if (!window.PublicKeyCredential) {
+        return false;
+    }
+    
+    try {
+        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        return available;
+    } catch (error) {
+        console.error('Biometric check error:', error);
+        return false;
+    }
+}
 
+async function registerBiometric() {
+    try {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        
+        const publicKeyCredentialCreationOptions = {
+            challenge: challenge,
+            rp: {
+                name: "SusuPay",
+                id: window.location.hostname
+            },
+            user: {
+                id: new Uint8Array(16),
+                name: userData.email,
+                displayName: `${userData.firstName} ${userData.surname}`
+            },
+            pubKeyCredParams: [{alg: -7, type: "public-key"}],
+            authenticatorSelection: {
+                authenticatorAttachment: "platform",
+                userVerification: "required"
+            },
+            timeout: 60000,
+            attestation: "direct"
+        };
+
+        const credential = await navigator.credentials.create({
+            publicKey: publicKeyCredentialCreationOptions
+        });
+
+        const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+        
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+            biometricCredentialId: credentialId,
+            biometricEnabled: true
+        });
+
+        userData.biometricEnabled = true;
+        userData.biometricCredentialId = credentialId;
+
+        return true;
+    } catch (error) {
+        console.error('Biometric registration error:', error);
+        throw error;
+    }
+}
+
+async function authenticateWithBiometric() {
+    try {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        
+        const publicKeyCredentialRequestOptions = {
+            challenge: challenge,
+            timeout: 60000,
+            userVerification: "required"
+        };
+
+        const assertion = await navigator.credentials.get({
+            publicKey: publicKeyCredentialRequestOptions
+        });
+
+        return assertion !== null;
+    } catch (error) {
+        console.error('Biometric authentication error:', error);
+        return false;
+    }
+}
+
+async function signInWithBiometric() {
+    try {
+        const storedEmail = localStorage.getItem('biometric_email');
+        if (!storedEmail) {
+            showAlert('Please sign in with password first to enable biometric login', 'error', 'auth-alert');
+            return;
+        }
+
+        const authenticated = await authenticateWithBiometric();
+        if (authenticated) {
+            const password = localStorage.getItem('biometric_temp_pass');
+            if (password) {
+                await signInWithEmailAndPassword(auth, storedEmail, atob(password));
+                showAlert('Biometric sign in successful!', 'success', 'auth-alert');
+            }
+        } else {
+            showAlert('Biometric authentication failed', 'error', 'auth-alert');
+        }
+    } catch (error) {
+        showAlert(error.message, 'error', 'auth-alert');
+    }
+}
+
+async function updateBiometricStatus() {
+    const statusDisplay = document.getElementById('biometric-status-display');
+    const setupBtn = document.getElementById('setup-biometric-btn');
+    const removeBtn = document.getElementById('remove-biometric-btn');
+    const fingerprintOption = document.getElementById('fingerprint-auth-option');
+    
+    const supported = await checkBiometricSupport();
+    
+    if (!supported) {
+        statusDisplay.innerHTML = `
+            <span style="font-size: 1.5rem;">⚠️</span>
+            <span>Biometric authentication not supported on this device</span>
+        `;
+        setupBtn.style.display = 'none';
+        if (fingerprintOption) {
+            fingerprintOption.style.display = 'none';
+        }
+        return;
+    }
+    
+    if (userData.biometricEnabled) {
+        statusDisplay.classList.remove('disabled');
+        statusDisplay.classList.add('enabled');
+        statusDisplay.innerHTML = `
+            <span style="font-size: 1.5rem;">✅</span>
+            <span>Biometric authentication enabled</span>
+        `;
+        setupBtn.style.display = 'none';
+        removeBtn.style.display = 'block';
+        
+        // Show fingerprint option in sign-in
+        const biometricSigninContainer = document.getElementById('biometric-signin-container');
+        if (biometricSigninContainer && localStorage.getItem('biometric_email')) {
+            biometricSigninContainer.style.display = 'block';
+        }
+    } else {
+        statusDisplay.classList.add('disabled');
+        statusDisplay.classList.remove('enabled');
+        setupBtn.style.display = 'block';
+        removeBtn.style.display = 'none';
+    }
+}
         function calculateVIPLevel(totalContributions, kycStatus) {
             if (kycStatus !== 'approved') return -1;
             if (totalContributions >= 1000000) return 7;
@@ -1919,18 +2267,7 @@
         }
         initParticles();
 
-        // Dark Mode Toggle
-        const toggle = document.getElementById('dark-mode-toggle');
-        toggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            toggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        });
-
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-            toggle.textContent = '☀️';
-        }
+       
 
         // Hamburger Menu
         const hamburger = document.getElementById('hamburger-toggle');
@@ -2124,23 +2461,31 @@
         });
 
         // Sign In
-        document.getElementById('signin-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signin-email').value;
-            const password = document.getElementById('signin-password').value;
+       document.getElementById('signin-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('signin-email').value;
+    const password = document.getElementById('signin-password').value;
 
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                if (!userCredential.user.emailVerified) {
-                    showAlert('Please verify your email first.', 'error', 'auth-alert');
-                    await signOut(auth);
-                    return;
-                }
-                showAlert('Sign in successful!', 'success', 'auth-alert');
-            } catch (error) {
-                showAlert(error.message, 'error', 'auth-alert');
-            }
-        });
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+            showAlert('Please verify your email first.', 'error', 'auth-alert');
+            await signOut(auth);
+            return;
+        }
+        
+        // Store for biometric if enabled
+        const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+        if (userDoc.exists() && userDoc.data().biometricEnabled) {
+            localStorage.setItem('biometric_email', email);
+            localStorage.setItem('biometric_temp_pass', btoa(password));
+        }
+        
+        showAlert('Sign in successful!', 'success', 'auth-alert');
+    } catch (error) {
+        showAlert(error.message, 'error', 'auth-alert');
+    }
+});
 
         // Sign Up
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
@@ -2249,6 +2594,8 @@
             const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
             if (userDoc.exists()) {
                 userData = userDoc.data();
+                // Add this at the end of loadUserData function
+await updateBiometricStatus();
                 
                 // Calculate and update VIP level
                 const newVIPLevel = calculateVIPLevel(userData.totalContributions || 0, userData.kycStatus);
@@ -2603,12 +2950,9 @@
                     <strong>Mobile Money Payment:</strong><br>
                     1. Dial *170# (MTN) or *110# (Telecel)<br>
                     2. Select "Send Money"<br>
-                    3. Enter <b>0551000715</b> (MTN) or <b>0208551270</b> (Telecel) as recipient<br>
-                    4. User Reference: <b>SUSUPAY</b><br>
-                    5. Enter the amount shown above<br>
-                    6. Confirm the Name is <b>Godfred Mensah</b><br>
-                    7. Confirm and complete the transaction<br>
-                    8. Paste transaction ID below
+                    3. Enter: <strong>0551000715</strong> or <strong>0208551270</strong><br>
+                    4. Enter the amount shown above<br>
+                    5. Paste transaction ID below
                 `;
             } else if (selectedPaymentMethod === 'crypto') {
                 instructions.innerHTML = `
@@ -2693,8 +3037,184 @@
             document.getElementById('payment-modal').style.display = 'none';
         });
 
-     
-       
+  
+        
+
+        // Dark Mode Toggle
+        const toggle = document.getElementById('dark-mode-toggle');
+        toggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            toggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            toggle.textContent = '☀️';
+        }
+
+        // Forgot Password
+        document.getElementById('forgot-password-btn').addEventListener('click', () => {
+            document.getElementById('forgot-password-modal').style.display = 'block';
+            document.getElementById('reset-success').classList.add('hidden');
+            document.getElementById('forgot-password-form').classList.remove('hidden');
+        });
+
+        document.getElementById('close-forgot-password').addEventListener('click', () => {
+            document.getElementById('forgot-password-modal').style.display = 'none';
+        });
+
+        document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value;
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                document.getElementById('forgot-password-form').classList.add('hidden');
+                document.getElementById('reset-success').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    document.getElementById('forgot-password-modal').style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                showAlert(error.message, 'error', 'auth-alert');
+            }
+        });        document.getElementById('close-payment-modal').addEventListener('click', () => {
+            document.getElementById('payment-modal').style.display = 'none';
+        });
+
+        // Withdrawals Page
+        function initWithdrawalsPage() {
+            const select = document.getElementById('withdrawal-month');
+            select.innerHTML = '<option value="">Choose month...</option>';
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            Object.keys(userData.contributedDays || {}).forEach(monthKey => {
+                const [year, month] = monthKey.split('-');
+                const option = document.createElement('option');
+                option.value = monthKey;
+                option.textContent = `${monthNames[parseInt(month)]} ${year}`;
+                select.appendChild(option);
+            });
+            
+            loadWithdrawalPaymentMethods();
+        }
+
+        async function loadWithdrawalPaymentMethods() {
+            const select = document.getElementById('withdrawal-payment-method');
+            select.innerHTML = '<option value="">Select payment method...</option>';
+            
+            const methods = userData.paymentMethods || { mobileMoney: [], crypto: [], bank: [] };
+            
+            methods.mobileMoney.forEach((method, index) => {
+                const option = document.createElement('option');
+                option.value = `momo-${index}`;
+                option.textContent = `${method.provider.toUpperCase()} - ${method.number}`;
+                select.appendChild(option);
+            });
+            
+            methods.crypto.forEach((method, index) => {
+                const option = document.createElement('option');
+                option.value = `crypto-${index}`;
+                option.textContent = `${method.type.toUpperCase()} - ${method.address.slice(0, 10)}...`;
+                select.appendChild(option);
+            });
+            
+            methods.bank.forEach((method, index) => {
+                const option = document.createElement('option');
+                option.value = `bank-${index}`;
+                option.textContent = `${method.bankName} - ${method.accountNumber}`;
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('process-withdrawal-btn').addEventListener('click', async () => {
+            const monthKey = document.getElementById('withdrawal-month').value;
+            const amount = parseFloat(document.getElementById('withdrawal-amount').value);
+            const paymentMethodId = document.getElementById('withdrawal-payment-method').value;
+            const password = document.getElementById('withdrawal-password').value;
+            
+            if (!monthKey || !amount || !paymentMethodId || !password) {
+                showAlert('Please fill in all fields.', 'error');
+                return;
+            }
+
+            if (userData.lockoutUntil && new Date(userData.lockoutUntil) > new Date()) {
+                const remainingTime = Math.ceil((new Date(userData.lockoutUntil) - new Date()) / 60000);
+                showAlert(`Account locked. Try again in ${remainingTime} minutes.`, 'error');
+                return;
+            }
+            
+          if (selectedWithdrawalAuthMethod === 'password') {
+        const password = document.getElementById('withdrawal-password').value;
+        if (password !== userData.withdrawalPassword) {
+            withdrawalAttempts++;
+            document.getElementById('attempts-remaining').textContent = 3 - withdrawalAttempts;
+            document.getElementById('withdrawal-attempts').style.display = 'block';
+            
+            if (withdrawalAttempts >= 3) {
+                showAlert('Account locked for 30 minutes', 'error');
+                // Handle lockout
+                return;
+            }
+            showAlert('Incorrect withdrawal password', 'error');
+            return;
+        }
+    } else if (selectedWithdrawalAuthMethod === 'fingerprint') {
+        if (!biometricAuthenticated) {
+            showAlert('Please authenticate with fingerprint first', 'error');
+            return;
+        }
+    }
+            withdrawalAttempts = 0;
+            document.getElementById('withdrawal-attempts').style.display = 'none';
+            
+            if (amount > userData.balance) {
+                showAlert('Insufficient balance.', 'error');
+                return;
+            }
+            
+            try {
+                const [type, index] = paymentMethodId.split('-');
+                let paymentDetails = {};
+                
+                if (type === 'momo') {
+                    paymentDetails = userData.paymentMethods.mobileMoney[index];
+                } else if (type === 'crypto') {
+                    paymentDetails = userData.paymentMethods.crypto[index];
+                } else if (type === 'bank') {
+                    paymentDetails = userData.paymentMethods.bank[index];
+                }
+                
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.uid,
+                    type: 'withdrawal',
+                    amount,
+                    month: monthKey,
+                    paymentMethod: type,
+                    paymentDetails,
+                    status: 'pending',
+                    timestamp: serverTimestamp()
+                });
+                
+                showAlert('Withdrawal request submitted!', 'success');
+                
+                await createNotification(
+                    'Withdrawal Submitted',
+                    `${formatCurrency(amount)} withdrawal submitted for processing`,
+                    'withdrawal'
+                );
+                
+                document.getElementById('withdrawal-month').value = '';
+                document.getElementById('withdrawal-amount').value = '';
+                document.getElementById('withdrawal-payment-method').value = '';
+                document.getElementById('withdrawal-password').value = '';
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        });
+
         // Transactions Page
         async function loadTransactions() {
             const container = document.getElementById('transactions-list');
@@ -2911,6 +3431,30 @@
                 showAlert('Error: ' + error.message, 'error');
             }
         });
+        document.getElementById('add-mobile-money-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const provider = document.getElementById('momo-provider').value;
+    const number = document.getElementById('momo-number').value;
+    const name = document.getElementById('momo-name').value;
+    
+    try {
+        const methods = userData.paymentMethods || { mobileMoney: [], crypto: [], bank: [] };
+        methods.mobileMoney.push({ provider, number, name });
+        
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+            'paymentMethods.mobileMoney': methods.mobileMoney
+        });
+        
+        userData.paymentMethods = methods;
+        
+        e.target.reset();
+        loadPaymentMethods();
+        showAlert('Mobile money account added!', 'success');
+    } catch (error) {
+        showAlert('Error: ' + error.message, 'error');
+    }
+});
 
         // KYC Page
         document.getElementById('terms-checkbox').addEventListener('change', (e) => {
@@ -3219,6 +3763,187 @@
                 mediaStream.getTracks().forEach(track => track.stop());
             }
         });
+        // Google Sign-In Handlers
+document.getElementById('google-signin-btn')?.addEventListener('click', async () => {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        // Check if user exists in database
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (!userDoc.exists()) {
+            showAlert('No account found. Please sign up first.', 'error', 'auth-alert');
+            await signOut(auth);
+            return;
+        }
+        
+        showAlert('Sign in successful!', 'success', 'auth-alert');
+    } catch (error) {
+        showAlert(error.message, 'error', 'auth-alert');
+    }
+});
+
+document.getElementById('google-signup-btn')?.addEventListener('click', async () => {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        // Check if user already exists
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (userDoc.exists()) {
+            showAlert('Account already exists. Please sign in.', 'error', 'auth-alert');
+            return;
+        }
+        
+        // Get referral code from input
+        const referralCode = document.getElementById('referral-code-input').value.trim().toUpperCase();
+        let referredByUid = null;
+        
+        if (referralCode) {
+            const q = query(collection(db, 'users'), where('referralCode', '==', referralCode));
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+                referredByUid = snapshot.docs[0].id;
+            }
+        }
+        
+        // Create user document
+        const names = user.displayName?.split(' ') || ['', ''];
+        await setDoc(doc(db, 'users', user.uid), {
+            firstName: names[0] || 'User',
+            surname: names[1] || 'Name',
+            email: user.email,
+            createdAt: serverTimestamp(),
+            balance: 0,
+            totalContributions: 0,
+            vipLevel: -1,
+            kycStatus: 'pending',
+            rates: {},
+            contributedDays: {},
+            referralCode: generateReferralCode(),
+            referredBy: referredByUid,
+            referrals: [],
+            referralEarnings: 0,
+            withdrawalPassword: generateReferralCode(), // Temporary password
+            withdrawalAttempts: 0,
+            lockoutUntil: null,
+            notifications: {
+                email: true,
+                sms: true,
+                security: true
+            },
+            paymentMethods: {
+                mobileMoney: [],
+                crypto: [],
+                bank: []
+            }
+        });
+        
+        if (referredByUid) {
+            const referrerDoc = await getDoc(doc(db, 'users', referredByUid));
+            if (referrerDoc.exists()) {
+                const referrerData = referrerDoc.data();
+                const updatedReferrals = [...(referrerData.referrals || []), user.uid];
+                await updateDoc(doc(db, 'users', referredByUid), {
+                    referrals: updatedReferrals
+                });
+            }
+        }
+        
+        showAlert('Account created successfully with Google!', 'success', 'auth-alert');
+    } catch (error) {
+        showAlert(error.message, 'error', 'auth-alert');
+    }
+});
+
+// Biometric Sign-In
+document.getElementById('biometric-signin-btn')?.addEventListener('click', signInWithBiometric);
+
+// Setup Biometric
+document.getElementById('setup-biometric-btn')?.addEventListener('click', async () => {
+    try {
+        document.getElementById('setup-biometric-btn').disabled = true;
+        document.getElementById('setup-biometric-btn').textContent = 'Setting up...';
+        
+        await registerBiometric();
+        
+        // Store email for biometric login
+        localStorage.setItem('biometric_email', userData.email);
+        localStorage.setItem('biometric_temp_pass', btoa(userData.withdrawalPassword));
+        
+        showAlert('Fingerprint authentication enabled successfully!', 'success');
+        updateBiometricStatus();
+    } catch (error) {
+        showAlert('Failed to set up fingerprint: ' + error.message, 'error');
+    } finally {
+        document.getElementById('setup-biometric-btn').disabled = false;
+        document.getElementById('setup-biometric-btn').innerHTML = '<span style="font-size: 1.2rem; margin-right: 8px;">👆</span>Set Up Fingerprint Authentication';
+    }
+});
+
+// Remove Biometric
+document.getElementById('remove-biometric-btn')?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to remove fingerprint authentication?')) return;
+    
+    try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+            biometricEnabled: false,
+            biometricCredentialId: null
+        });
+        
+        userData.biometricEnabled = false;
+        localStorage.removeItem('biometric_email');
+        localStorage.removeItem('biometric_temp_pass');
+        
+        showAlert('Fingerprint authentication removed', 'success');
+        updateBiometricStatus();
+    } catch (error) {
+        showAlert('Error: ' + error.message, 'error');
+    }
+});
+
+// Withdrawal Auth Method Selection
+document.querySelectorAll('.auth-method-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.auth-method-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        selectedWithdrawalAuthMethod = option.dataset.auth;
+        
+        if (selectedWithdrawalAuthMethod === 'password') {
+            document.getElementById('password-auth-container').style.display = 'block';
+            document.getElementById('fingerprint-auth-container').style.display = 'none';
+            biometricAuthenticated = false;
+        } else {
+            document.getElementById('password-auth-container').style.display = 'none';
+            document.getElementById('fingerprint-auth-container').style.display = 'block';
+            biometricAuthenticated = false;
+        }
+    });
+});
+
+// Authenticate Fingerprint for Withdrawal
+document.getElementById('authenticate-fingerprint-btn')?.addEventListener('click', async () => {
+    try {
+        const authenticated = await authenticateWithBiometric();
+        if (authenticated) {
+            biometricAuthenticated = true;
+            document.getElementById('fingerprint-status').classList.add('enabled');
+            document.getElementById('fingerprint-status').innerHTML = `
+                <span style="font-size: 1.5rem;">✅</span>
+                <span>Fingerprint authenticated successfully</span>
+            `;
+            showAlert('Fingerprint authenticated!', 'success');
+        } else {
+            showAlert('Fingerprint authentication failed', 'error');
+        }
+    } catch (error) {
+        showAlert('Authentication error: ' + error.message, 'error');
+    }
+});
 
         console.log('SusuPay Enhanced System Initialized - All Features Loaded ✅');
     </script>
