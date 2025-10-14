@@ -1260,7 +1260,7 @@
                 <div id="vip-progress-content"></div>
             </div>
 
-            <div class="card">
+           <div class="card">
                 <h3 style="margin-bottom: 20px; color: #4a5568;">Set Monthly Rate</h3>
                 <div class="form-group">
                     <label for="rate-input">Monthly Rate (GH₵)</label>
@@ -1268,8 +1268,24 @@
                 </div>
                 <button class="btn" id="set-rate-btn">Set Rate</button>
             </div>
-        </div>
 
+            <!-- ADD THIS NEW CARD HERE -->
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3 style="margin-bottom: 15px; color: white;">👥 Your Referral Code</h3>
+                <div style="text-align: center; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 15px;">
+                    <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 10px;">Share this code with friends</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; letter-spacing: 5px; margin: 15px 0; font-family: monospace;" id="dashboard-referral-code">
+                        LOADING...
+                    </div>
+                    <button class="copy-btn" id="copy-dashboard-referral" style="margin-top: 10px;">
+                        📋 Copy Code
+                    </button>
+                </div>
+                <div style="font-size: 0.9rem; text-align: center; opacity: 0.9;">
+                    You have referred <strong id="dashboard-referral-count">0</strong> friend(s)
+                </div>
+            </div>
+        </div>
         <!-- Referrals Page -->
         <div id="referrals-page" class="page-content hidden">
             <h2 style="margin-bottom: 20px; color: #ffffff;">Referral Program</h2>
@@ -1309,6 +1325,30 @@
                     <div id="referral-bonus-info" style="color: #4a5568; line-height: 1.8;"></div>
                 </div>
             </div>
+
+            <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-top: 20px; border: 2px solid #e2e8f0;">
+                    <h4 style="color: #4a5568; margin-bottom: 15px;">🔗 Share Your Referral Link</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="referral-link" readonly style="flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; font-family: monospace; font-size: 0.9rem;">
+                        <button class="btn" id="copy-referral-link-btn" style="width: auto; padding: 12px 25px; white-space: nowrap;">
+                            📋 Copy Link
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn" id="share-whatsapp" style="width: auto; padding: 10px 20px; background: #25d366;">
+                            WhatsApp
+                        </button>
+                        <button class="btn" id="share-facebook" style="width: auto; padding: 10px 20px; background: #1877f2;">
+                            Facebook
+                        </button>
+                        <button class="btn" id="share-twitter" style="width: auto; padding: 10px 20px; background: #1da1f2;">
+                            Twitter
+                        </button>
+                        <button class="btn" id="share-email" style="width: auto; padding: 10px 20px; background: #ea4335;">
+                            Email
+                        </button>
+                    </div>
+                </div>
 
             <div class="card">
                 <h3 style="margin-bottom: 20px; color: #4a5568;">👥 Your Referrals</h3>
@@ -1428,16 +1468,18 @@
                     <input type="password" id="withdrawal-password" placeholder="Enter your withdrawal password">
                 </div>
 
-                <div id="fingerprint-auth-container" style="display: none;">
-                
-                    <button type="button" class="biometric-btn" id="authenticate-fingerprint-btn">
-                        <span style="font-size: 1.5rem;">👆</span>
-                        Authenticate with Fingerprint
-                    </button>
-                </div>
+    <div id="fingerprint-auth-container" style="display: none;">
+    <div class="biometric-status disabled" id="fingerprint-status">
+        <span style="font-size: 1.5rem;">👆</span>
+        <span>Tap to authenticate with fingerprint</span>
+    </div>
+    <button type="button" class="biometric-btn" id="authenticate-fingerprint-btn">
+        <span style="font-size: 1.5rem;">👆</span>
+        Authenticate with Fingerprint
+    </button>
+</div>
 
-                <button class="btn" id="process-withdrawal-btn">Process Withdrawal</button>
-
+<button class="btn" id="process-withdrawal-btn">Process Withdrawal</button>
                 <div id="withdrawal-attempts" style="display: none; margin-top: 15px; padding: 15px; background: #fed7d7; border-radius: 8px; color: #742a2a;">
                     <strong>Warning:</strong> <span id="attempts-remaining">3</span> attempts remaining. Account will be locked for 30 minutes after 3 failed attempts.
                 </div>
@@ -1881,22 +1923,22 @@
         </div>
     </div>
 
-    <script type="module">
+   <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-       import { 
-    getAuth, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    onAuthStateChanged, 
-    signOut, 
-    sendEmailVerification,
-    reauthenticateWithCredential,
-    EmailAuthProvider,
-    sendPasswordResetEmail,
-    updatePassword,
-    GoogleAuthProvider,
-    signInWithPopup
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            onAuthStateChanged, 
+            signOut, 
+            sendEmailVerification,
+            reauthenticateWithCredential,
+            EmailAuthProvider,
+            sendPasswordResetEmail,
+            updatePassword,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
             getFirestore, 
             doc, 
@@ -1908,7 +1950,8 @@
             query, 
             where, 
             getDocs, 
-            serverTimestamp 
+            serverTimestamp,
+            orderBy
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1920,10 +1963,10 @@
             appId: "1:83852132974:web:2d8be2d1adb7e7639f5c7f"
         };
 
-       const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         let currentUser = null;
         let userData = null;
@@ -1960,154 +2003,155 @@ const googleProvider = new GoogleAuthProvider();
             }
             return code;
         }
-// Biometric Authentication Functions
-async function checkBiometricSupport() {
-    if (!window.PublicKeyCredential) {
-        return false;
-    }
-    
-    try {
-        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-        return available;
-    } catch (error) {
-        console.error('Biometric check error:', error);
-        return false;
-    }
-}
 
-async function registerBiometric() {
-    try {
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
-        
-        const publicKeyCredentialCreationOptions = {
-            challenge: challenge,
-            rp: {
-                name: "SusuPay",
-                id: window.location.hostname
-            },
-            user: {
-                id: new Uint8Array(16),
-                name: userData.email,
-                displayName: `${userData.firstName} ${userData.surname}`
-            },
-            pubKeyCredParams: [{alg: -7, type: "public-key"}],
-            authenticatorSelection: {
-                authenticatorAttachment: "platform",
-                userVerification: "required"
-            },
-            timeout: 60000,
-            attestation: "direct"
-        };
-
-        const credential = await navigator.credentials.create({
-            publicKey: publicKeyCredentialCreationOptions
-        });
-
-        const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
-        
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-            biometricCredentialId: credentialId,
-            biometricEnabled: true
-        });
-
-        userData.biometricEnabled = true;
-        userData.biometricCredentialId = credentialId;
-
-        return true;
-    } catch (error) {
-        console.error('Biometric registration error:', error);
-        throw error;
-    }
-}
-
-async function authenticateWithBiometric() {
-    try {
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
-        
-        const publicKeyCredentialRequestOptions = {
-            challenge: challenge,
-            timeout: 60000,
-            userVerification: "required"
-        };
-
-        const assertion = await navigator.credentials.get({
-            publicKey: publicKeyCredentialRequestOptions
-        });
-
-        return assertion !== null;
-    } catch (error) {
-        console.error('Biometric authentication error:', error);
-        return false;
-    }
-}
-
-async function signInWithBiometric() {
-    try {
-        const storedEmail = localStorage.getItem('biometric_email');
-        if (!storedEmail) {
-            showAlert('Please sign in with password first to enable biometric login', 'error', 'auth-alert');
-            return;
-        }
-
-        const authenticated = await authenticateWithBiometric();
-        if (authenticated) {
-            const password = localStorage.getItem('biometric_temp_pass');
-            if (password) {
-                await signInWithEmailAndPassword(auth, storedEmail, atob(password));
-                showAlert('Biometric sign in successful!', 'success', 'auth-alert');
+        // Biometric Authentication Functions
+        async function checkBiometricSupport() {
+            if (!window.PublicKeyCredential) {
+                return false;
             }
-        } else {
-            showAlert('Biometric authentication failed', 'error', 'auth-alert');
+            
+            try {
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                return available;
+            } catch (error) {
+                console.error('Biometric check error:', error);
+                return false;
+            }
         }
-    } catch (error) {
-        showAlert(error.message, 'error', 'auth-alert');
-    }
-}
 
-async function updateBiometricStatus() {
-    const statusDisplay = document.getElementById('biometric-status-display');
-    const setupBtn = document.getElementById('setup-biometric-btn');
-    const removeBtn = document.getElementById('remove-biometric-btn');
-    const fingerprintOption = document.getElementById('fingerprint-auth-option');
-    
-    const supported = await checkBiometricSupport();
-    
-    if (!supported) {
-        statusDisplay.innerHTML = `
-            <span style="font-size: 1.5rem;">⚠️</span>
-            <span>Biometric authentication not supported on this device</span>
-        `;
-        setupBtn.style.display = 'none';
-        if (fingerprintOption) {
-            fingerprintOption.style.display = 'none';
+        async function registerBiometric() {
+            try {
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                
+                const publicKeyCredentialCreationOptions = {
+                    challenge: challenge,
+                    rp: {
+                        name: "SusuPay",
+                        id: window.location.hostname
+                    },
+                    user: {
+                        id: new Uint8Array(16),
+                        name: userData.email,
+                        displayName: `${userData.firstName} ${userData.surname}`
+                    },
+                    pubKeyCredParams: [{alg: -7, type: "public-key"}],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",
+                        userVerification: "required"
+                    },
+                    timeout: 60000,
+                    attestation: "direct"
+                };
+
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+                
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    biometricCredentialId: credentialId,
+                    biometricEnabled: true
+                });
+
+                userData.biometricEnabled = true;
+                userData.biometricCredentialId = credentialId;
+
+                return true;
+            } catch (error) {
+                console.error('Biometric registration error:', error);
+                throw error;
+            }
         }
-        return;
-    }
-    
-    if (userData.biometricEnabled) {
-        statusDisplay.classList.remove('disabled');
-        statusDisplay.classList.add('enabled');
-        statusDisplay.innerHTML = `
-            <span style="font-size: 1.5rem;">✅</span>
-            <span>Biometric authentication enabled</span>
-        `;
-        setupBtn.style.display = 'none';
-        removeBtn.style.display = 'block';
-        
-        // Show fingerprint option in sign-in
-        const biometricSigninContainer = document.getElementById('biometric-signin-container');
-        if (biometricSigninContainer && localStorage.getItem('biometric_email')) {
-            biometricSigninContainer.style.display = 'block';
+
+        async function authenticateWithBiometric() {
+            try {
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                
+                const publicKeyCredentialRequestOptions = {
+                    challenge: challenge,
+                    timeout: 60000,
+                    userVerification: "required"
+                };
+
+                const assertion = await navigator.credentials.get({
+                    publicKey: publicKeyCredentialRequestOptions
+                });
+
+                return assertion !== null;
+            } catch (error) {
+                console.error('Biometric authentication error:', error);
+                return false;
+            }
         }
-    } else {
-        statusDisplay.classList.add('disabled');
-        statusDisplay.classList.remove('enabled');
-        setupBtn.style.display = 'block';
-        removeBtn.style.display = 'none';
-    }
-}
+
+        async function signInWithBiometric() {
+            try {
+                const storedEmail = localStorage.getItem('biometric_email');
+                if (!storedEmail) {
+                    showAlert('Please sign in with password first to enable biometric login', 'error', 'auth-alert');
+                    return;
+                }
+
+                const authenticated = await authenticateWithBiometric();
+                if (authenticated) {
+                    const password = localStorage.getItem('biometric_temp_pass');
+                    if (password) {
+                        await signInWithEmailAndPassword(auth, storedEmail, atob(password));
+                        showAlert('Biometric sign in successful!', 'success', 'auth-alert');
+                    }
+                } else {
+                    showAlert('Biometric authentication failed', 'error', 'auth-alert');
+                }
+            } catch (error) {
+                showAlert(error.message, 'error', 'auth-alert');
+            }
+        }
+
+        async function updateBiometricStatus() {
+            const statusDisplay = document.getElementById('biometric-status-display');
+            const setupBtn = document.getElementById('setup-biometric-btn');
+            const removeBtn = document.getElementById('remove-biometric-btn');
+            const fingerprintOption = document.getElementById('fingerprint-auth-option');
+            
+            const supported = await checkBiometricSupport();
+            
+            if (!supported) {
+                statusDisplay.innerHTML = `
+                    <span style="font-size: 1.5rem;">⚠️</span>
+                    <span>Biometric authentication not supported on this device</span>
+                `;
+                setupBtn.style.display = 'none';
+                if (fingerprintOption) {
+                    fingerprintOption.style.display = 'none';
+                }
+                return;
+            }
+            
+            if (userData.biometricEnabled) {
+                statusDisplay.classList.remove('disabled');
+                statusDisplay.classList.add('enabled');
+                statusDisplay.innerHTML = `
+                    <span style="font-size: 1.5rem;">✅</span>
+                    <span>Biometric authentication enabled</span>
+                `;
+                setupBtn.style.display = 'none';
+                removeBtn.style.display = 'block';
+                
+                const biometricSigninContainer = document.getElementById('biometric-signin-container');
+                if (biometricSigninContainer && localStorage.getItem('biometric_email')) {
+                    biometricSigninContainer.style.display = 'block';
+                }
+            } else {
+                statusDisplay.classList.add('disabled');
+                statusDisplay.classList.remove('enabled');
+                setupBtn.style.display = 'block';
+                removeBtn.style.display = 'none';
+            }
+        }
+
         function calculateVIPLevel(totalContributions, kycStatus) {
             if (kycStatus !== 'approved') return -1;
             if (totalContributions >= 1000000) return 7;
@@ -2267,7 +2311,30 @@ async function updateBiometricStatus() {
         }
         initParticles();
 
-       
+        // Referral Code URL Handler
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            
+            if (refCode) {
+                localStorage.setItem('pending_referral', refCode);
+                
+                const referralInput = document.getElementById('referral-code-input');
+                if (referralInput) {
+                    referralInput.value = refCode;
+                    referralInput.style.border = '2px solid #48bb78';
+                    referralInput.style.background = '#f0fff4';
+                }
+                
+                setTimeout(() => {
+                    const authToggle = document.getElementById('auth-toggle-btn');
+                    const signupForm = document.getElementById('signup-form');
+                    if (authToggle && signupForm.classList.contains('hidden')) {
+                        authToggle.click();
+                    }
+                }, 500);
+            }
+        });
 
         // Hamburger Menu
         const hamburger = document.getElementById('hamburger-toggle');
@@ -2461,31 +2528,30 @@ async function updateBiometricStatus() {
         });
 
         // Sign In
-       document.getElementById('signin-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('signin-email').value;
-    const password = document.getElementById('signin-password').value;
+        document.getElementById('signin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
 
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-            showAlert('Please verify your email first.', 'error', 'auth-alert');
-            await signOut(auth);
-            return;
-        }
-        
-        // Store for biometric if enabled
-        const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
-        if (userDoc.exists() && userDoc.data().biometricEnabled) {
-            localStorage.setItem('biometric_email', email);
-            localStorage.setItem('biometric_temp_pass', btoa(password));
-        }
-        
-        showAlert('Sign in successful!', 'success', 'auth-alert');
-    } catch (error) {
-        showAlert(error.message, 'error', 'auth-alert');
-    }
-});
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                if (!userCredential.user.emailVerified) {
+                    showAlert('Please verify your email first.', 'error', 'auth-alert');
+                    await signOut(auth);
+                    return;
+                }
+                
+                const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+                if (userDoc.exists() && userDoc.data().biometricEnabled) {
+                    localStorage.setItem('biometric_email', email);
+                    localStorage.setItem('biometric_temp_pass', btoa(password));
+                }
+                
+                showAlert('Sign in successful!', 'success', 'auth-alert');
+            } catch (error) {
+                showAlert(error.message, 'error', 'auth-alert');
+            }
+        });
 
         // Sign Up
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
@@ -2501,7 +2567,7 @@ async function updateBiometricStatus() {
                 showAlert('Passwords do not match!', 'error', 'auth-alert');
                 return;
             }
-
+        
             try {
                 let referredByUid = null;
                 
@@ -2527,7 +2593,7 @@ async function updateBiometricStatus() {
                     balance: 0,
                     totalContributions: 0,
                     vipLevel: -1,
-                    kycStatus: 'pending',
+                    kycStatus: 'NOT STARTED',
                     rates: {},
                     contributedDays: {},
                     referralCode: generateReferralCode(),
@@ -2561,11 +2627,154 @@ async function updateBiometricStatus() {
                 }
 
                 await sendEmailVerification(userCredential.user);
-                
-                showAlert('Account created! Check your email to verify.', 'success', 'auth-alert');
+
+                const newUserDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+                const newReferralCode = newUserDoc.data().referralCode;
+
+                showAlert(`Account created! Your referral code is: ${newReferralCode}. Check your email to verify.`, 'success', 'auth-alert');
+
+                localStorage.setItem('temp_referral_code', newReferralCode);
+
                 document.getElementById('auth-toggle-btn').click();
             } catch (error) {
                 showAlert(error.message, 'error', 'auth-alert');
+            }
+        });
+
+        // Google Sign-In Handlers
+        document.getElementById('google-signin-btn')?.addEventListener('click', async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                
+                if (!userDoc.exists()) {
+                    showAlert('No account found. Please sign up first.', 'error', 'auth-alert');
+                    await signOut(auth);
+                    return;
+                }
+                
+                showAlert('Sign in successful!', 'success', 'auth-alert');
+            } catch (error) {
+                showAlert(error.message, 'error', 'auth-alert');
+            }
+        });
+
+        document.getElementById('google-signup-btn')?.addEventListener('click', async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                
+                if (userDoc.exists()) {
+                    showAlert('Account already exists. Please sign in.', 'error', 'auth-alert');
+                    return;
+                }
+                
+                const referralCode = document.getElementById('referral-code-input').value.trim().toUpperCase();
+                let referredByUid = null;
+                
+                if (referralCode) {
+                    const q = query(collection(db, 'users'), where('referralCode', '==', referralCode));
+                    const snapshot = await getDocs(q);
+                    
+                    if (!snapshot.empty) {
+                        referredByUid = snapshot.docs[0].id;
+                    }
+                }
+                
+                const names = user.displayName?.split(' ') || ['', ''];
+                await setDoc(doc(db, 'users', user.uid), {
+                    firstName: names[0] || 'User',
+                    surname: names[1] || 'Name',
+                    email: user.email,
+                    createdAt: serverTimestamp(),
+                    balance: 0,
+                    totalContributions: 0,
+                    vipLevel: -1,
+                    kycStatus: 'NOT STARTED',
+                    rates: {},
+                    contributedDays: {},
+                    referralCode: generateReferralCode(),
+                    referredBy: referredByUid,
+                    referrals: [],
+                    referralEarnings: 0,
+                    withdrawalPassword: generateReferralCode(),
+                    withdrawalAttempts: 0,
+                    lockoutUntil: null,
+                    notifications: {
+                        email: true,
+                        sms: true,
+                        security: true
+                    },
+                    paymentMethods: {
+                        mobileMoney: [],
+                        crypto: [],
+                        bank: []
+                    }
+                });
+                
+                if (referredByUid) {
+                    const referrerDoc = await getDoc(doc(db, 'users', referredByUid));
+                    if (referrerDoc.exists()) {
+                        const referrerData = referrerDoc.data();
+                        const updatedReferrals = [...(referrerData.referrals || []), user.uid];
+                        await updateDoc(doc(db, 'users', referredByUid), {
+                            referrals: updatedReferrals
+                        });
+                    }
+                }
+                
+                showAlert('Account created successfully with Google!', 'success', 'auth-alert');
+            } catch (error) {
+                showAlert(error.message, 'error', 'auth-alert');
+            }
+        });
+
+        // Biometric Sign-In
+        document.getElementById('biometric-signin-btn')?.addEventListener('click', signInWithBiometric);
+
+        // Setup Biometric
+        document.getElementById('setup-biometric-btn')?.addEventListener('click', async () => {
+            try {
+                document.getElementById('setup-biometric-btn').disabled = true;
+                document.getElementById('setup-biometric-btn').textContent = 'Setting up...';
+                
+                await registerBiometric();
+                
+                localStorage.setItem('biometric_email', userData.email);
+                localStorage.setItem('biometric_temp_pass', btoa(userData.withdrawalPassword));
+                
+                showAlert('Fingerprint authentication enabled successfully!', 'success');
+                updateBiometricStatus();
+            } catch (error) {
+                showAlert('Failed to set up fingerprint: ' + error.message, 'error');
+            } finally {
+                document.getElementById('setup-biometric-btn').disabled = false;
+                document.getElementById('setup-biometric-btn').innerHTML = '<span style="font-size: 1.2rem; margin-right: 8px;">👆</span>Set Up Fingerprint Authentication';
+            }
+        });
+
+        // Remove Biometric
+        document.getElementById('remove-biometric-btn')?.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to remove fingerprint authentication?')) return;
+            
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    biometricEnabled: false,
+                    biometricCredentialId: null
+                });
+                
+                userData.biometricEnabled = false;
+                localStorage.removeItem('biometric_email');
+                localStorage.removeItem('biometric_temp_pass');
+                
+                showAlert('Fingerprint authentication removed', 'success');
+                updateBiometricStatus();
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
             }
         });
 
@@ -2594,10 +2803,8 @@ async function updateBiometricStatus() {
             const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
             if (userDoc.exists()) {
                 userData = userDoc.data();
-                // Add this at the end of loadUserData function
-await updateBiometricStatus();
+                await updateBiometricStatus();
                 
-                // Calculate and update VIP level
                 const newVIPLevel = calculateVIPLevel(userData.totalContributions || 0, userData.kycStatus);
                 if (newVIPLevel !== userData.vipLevel) {
                     await updateDoc(doc(db, 'users', currentUser.uid), {
@@ -2615,6 +2822,14 @@ await updateBiometricStatus();
                         `Login detected at ${new Date().toLocaleString()}`,
                         'security'
                     );
+                }
+                
+                const hasSeenReferral = localStorage.getItem(`referral_seen_${currentUser.uid}`);
+                if (!hasSeenReferral && userData.referralCode) {
+                    setTimeout(() => {
+                        showAlert(`🎉 Your referral code is: ${userData.referralCode}. Share it with friends to earn bonuses!`, 'info');
+                        localStorage.setItem(`referral_seen_${currentUser.uid}`, 'true');
+                    }, 2000);
                 }
             }
         }
@@ -2641,6 +2856,8 @@ await updateBiometricStatus();
             document.getElementById('total-contributions').textContent = formatCurrency(userData.totalContributions || 0);
             document.getElementById('vip-level-display').textContent = getVIPBenefits(userData.vipLevel).name;
             document.getElementById('referral-count').textContent = (userData.referrals || []).length;
+            document.getElementById('dashboard-referral-code').textContent = userData.referralCode || 'N/A';
+            document.getElementById('dashboard-referral-count').textContent = (userData.referrals || []).length;
             
             updateVIPProgress();
             updateReferralPage();
@@ -2735,7 +2952,73 @@ await updateBiometricStatus();
                     'Complete KYC verification to unlock higher referral bonuses!'
                 }
             `;
+            
+            const referralLink = `${window.location.origin}${window.location.pathname}?ref=${userData.referralCode}`;
+            const referralLinkInput = document.getElementById('referral-link');
+            if (referralLinkInput) {
+                referralLinkInput.value = referralLink;
+            }
         }
+
+        // Referral Code Copy Handlers
+        document.getElementById('copy-referral-btn')?.addEventListener('click', () => {
+            const code = userData.referralCode;
+            navigator.clipboard.writeText(code).then(() => {
+                showAlert('Referral code copied to clipboard!', 'success');
+            });
+        });
+
+        document.getElementById('copy-dashboard-referral')?.addEventListener('click', () => {
+            const code = userData.referralCode;
+            navigator.clipboard.writeText(code).then(() => {
+                showAlert('Referral code copied to clipboard!', 'success');
+                
+                const btn = document.getElementById('copy-dashboard-referral');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+
+        document.getElementById('copy-referral-link-btn')?.addEventListener('click', () => {
+            const link = document.getElementById('referral-link').value;
+            navigator.clipboard.writeText(link).then(() => {
+                showAlert('Referral link copied!', 'success');
+                const btn = document.getElementById('copy-referral-link-btn');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy Link';
+                }, 2000);
+            });
+        });
+
+        // Social Share Handlers
+        document.getElementById('share-whatsapp')?.addEventListener('click', () => {
+            const code = userData.referralCode;
+            const message = `Join SusuPay and start saving daily! Use my referral code: ${code}\n\n${window.location.origin}${window.location.pathname}?ref=${code}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        });
+
+        document.getElementById('share-facebook')?.addEventListener('click', () => {
+            const link = `${window.location.origin}${window.location.pathname}?ref=${userData.referralCode}`;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank');
+        });
+
+        document.getElementById('share-twitter')?.addEventListener('click', () => {
+            const code = userData.referralCode;
+            const text = `Join me on SusuPay! Use my referral code: ${code}`;
+            const link = `${window.location.origin}${window.location.pathname}?ref=${code}`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`, '_blank');
+        });
+
+        document.getElementById('share-email')?.addEventListener('click', () => {
+            const code = userData.referralCode;
+            const subject = 'Join SusuPay with my referral code!';
+            const body = `Hi!\n\nI've been using SusuPay for daily savings and I think you'd love it too!\n\nUse my referral code: ${code}\n\nSign up here: ${window.location.origin}${window.location.pathname}?ref=${code}\n\nHappy Saving!`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        });
 
         function updateStakingBenefits() {
             let benefitsHTML = '';
@@ -2771,14 +3054,6 @@ await updateBiometricStatus();
                 document.getElementById('p2p-content').classList.add('hidden');
             }
         }
-
-        // Copy Referral Code
-        document.getElementById('copy-referral-btn').addEventListener('click', () => {
-            const code = userData.referralCode;
-            navigator.clipboard.writeText(code).then(() => {
-                showAlert('Referral code copied to clipboard!', 'success');
-            });
-        });
 
         // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -3037,52 +3312,6 @@ await updateBiometricStatus();
             document.getElementById('payment-modal').style.display = 'none';
         });
 
-  
-        
-
-        // Dark Mode Toggle
-        const toggle = document.getElementById('dark-mode-toggle');
-        toggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            toggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        });
-
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-            toggle.textContent = '☀️';
-        }
-
-        // Forgot Password
-        document.getElementById('forgot-password-btn').addEventListener('click', () => {
-            document.getElementById('forgot-password-modal').style.display = 'block';
-            document.getElementById('reset-success').classList.add('hidden');
-            document.getElementById('forgot-password-form').classList.remove('hidden');
-        });
-
-        document.getElementById('close-forgot-password').addEventListener('click', () => {
-            document.getElementById('forgot-password-modal').style.display = 'none';
-        });
-
-        document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('reset-email').value;
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                document.getElementById('forgot-password-form').classList.add('hidden');
-                document.getElementById('reset-success').classList.remove('hidden');
-                
-                setTimeout(() => {
-                    document.getElementById('forgot-password-modal').style.display = 'none';
-                }, 3000);
-            } catch (error) {
-                showAlert(error.message, 'error', 'auth-alert');
-            }
-        });        document.getElementById('close-payment-modal').addEventListener('click', () => {
-            document.getElementById('payment-modal').style.display = 'none';
-        });
-
         // Withdrawals Page
         function initWithdrawalsPage() {
             const select = document.getElementById('withdrawal-month');
@@ -3129,13 +3358,54 @@ await updateBiometricStatus();
             });
         }
 
+        // Withdrawal Auth Method Selection
+        document.querySelectorAll('.auth-method-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.auth-method-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                
+                selectedWithdrawalAuthMethod = option.dataset.auth;
+                
+                if (selectedWithdrawalAuthMethod === 'password') {
+                    document.getElementById('password-auth-container').style.display = 'block';
+                    document.getElementById('fingerprint-auth-container').style.display = 'none';
+                    biometricAuthenticated = false;
+                } else {
+                    document.getElementById('password-auth-container').style.display = 'none';
+                    document.getElementById('fingerprint-auth-container').style.display = 'block';
+                    biometricAuthenticated = false;
+                }
+            });
+        });
+
+        // Authenticate Fingerprint for Withdrawal
+        document.getElementById('authenticate-fingerprint-btn')?.addEventListener('click', async () => {
+            try {
+                const authenticated = await authenticateWithBiometric();
+                if (authenticated) {
+                    biometricAuthenticated = true;
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'biometric-status enabled';
+                    statusDiv.innerHTML = `
+                        <span style="font-size: 1.5rem;">✅</span>
+                        <span>Fingerprint authenticated successfully</span>
+                    `;
+                    document.getElementById('fingerprint-auth-container').appendChild(statusDiv);
+                    showAlert('Fingerprint authenticated!', 'success');
+                } else {
+                    showAlert('Fingerprint authentication failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Authentication error: ' + error.message, 'error');
+            }
+        });
+
         document.getElementById('process-withdrawal-btn').addEventListener('click', async () => {
             const monthKey = document.getElementById('withdrawal-month').value;
             const amount = parseFloat(document.getElementById('withdrawal-amount').value);
             const paymentMethodId = document.getElementById('withdrawal-payment-method').value;
-            const password = document.getElementById('withdrawal-password').value;
             
-            if (!monthKey || !amount || !paymentMethodId || !password) {
+            if (!monthKey || !amount || !paymentMethodId) {
                 showAlert('Please fill in all fields.', 'error');
                 return;
             }
@@ -3146,27 +3416,32 @@ await updateBiometricStatus();
                 return;
             }
             
-          if (selectedWithdrawalAuthMethod === 'password') {
-        const password = document.getElementById('withdrawal-password').value;
-        if (password !== userData.withdrawalPassword) {
-            withdrawalAttempts++;
-            document.getElementById('attempts-remaining').textContent = 3 - withdrawalAttempts;
-            document.getElementById('withdrawal-attempts').style.display = 'block';
-            
-            if (withdrawalAttempts >= 3) {
-                showAlert('Account locked for 30 minutes', 'error');
-                // Handle lockout
-                return;
+            if (selectedWithdrawalAuthMethod === 'password') {
+                const password = document.getElementById('withdrawal-password').value;
+                if (password !== userData.withdrawalPassword) {
+                    withdrawalAttempts++;
+                    document.getElementById('attempts-remaining').textContent = 3 - withdrawalAttempts;
+                    document.getElementById('withdrawal-attempts').style.display = 'block';
+                    
+                    if (withdrawalAttempts >= 3) {
+                        const lockoutTime = new Date(Date.now() + 30 * 60000);
+                        await updateDoc(doc(db, 'users', currentUser.uid), {
+                            lockoutUntil: lockoutTime.toISOString(),
+                            withdrawalAttempts: 0
+                        });
+                        showAlert('Account locked for 30 minutes', 'error');
+                        return;
+                    }
+                    showAlert('Incorrect withdrawal password', 'error');
+                    return;
+                }
+            } else if (selectedWithdrawalAuthMethod === 'fingerprint') {
+                if (!biometricAuthenticated) {
+                    showAlert('Please authenticate with fingerprint first', 'error');
+                    return;
+                }
             }
-            showAlert('Incorrect withdrawal password', 'error');
-            return;
-        }
-    } else if (selectedWithdrawalAuthMethod === 'fingerprint') {
-        if (!biometricAuthenticated) {
-            showAlert('Please authenticate with fingerprint first', 'error');
-            return;
-        }
-    }
+
             withdrawalAttempts = 0;
             document.getElementById('withdrawal-attempts').style.display = 'none';
             
@@ -3210,6 +3485,7 @@ await updateBiometricStatus();
                 document.getElementById('withdrawal-amount').value = '';
                 document.getElementById('withdrawal-payment-method').value = '';
                 document.getElementById('withdrawal-password').value = '';
+                biometricAuthenticated = false;
             } catch (error) {
                 showAlert('Error: ' + error.message, 'error');
             }
@@ -3217,84 +3493,87 @@ await updateBiometricStatus();
 
         // Transactions Page
         async function loadTransactions() {
-            const container = document.getElementById('transactions-list');
-            container.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>Loading...</div>';
-            
-            try {
-                const q = query(
-                    collection(db, 'transactions'),
-                    where('userId', '==', currentUser.uid)
-                );
-                
-                const querySnapshot = await getDocs(q);
-                
-                if (querySnapshot.empty) {
-                    container.innerHTML = `
-                        <div class="card" style="text-align: center; padding: 60px 20px;">
-                            <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📜</div>
-                            <h3 style="color: #4a5568; margin-bottom: 10px;">No Transactions Yet</h3>
-                            <p style="color: #718096;">Your transaction history will appear here.</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                container.innerHTML = '';
-                
-                const transactions = [];
-                querySnapshot.forEach((doc) => {
-                    transactions.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                transactions.sort((a, b) => {
-                    const timeA = a.timestamp?.toDate?.() || new Date(0);
-                    const timeB = b.timestamp?.toDate?.() || new Date(0);
-                    return timeB - timeA;
-                });
-                
-                transactions.forEach((transaction) => {
-                    const card = document.createElement('div');
-                    card.className = `transaction-card ${transaction.type}`;
-                    
-                    const timestamp = transaction.timestamp?.toDate?.() || new Date();
-                    
-                    card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div>
-                                <div style="font-weight: 600; font-size: 1.1rem; color: #4a5568;">${transaction.type === 'contribution' ? '💰 Contribution' : '💸 Withdrawal'}</div>
-                                ${transaction.days?.length ? `<div style="font-size: 0.8rem; color: #667eea; margin-top: 4px; font-weight: 600;">${transaction.days.length} day${transaction.days.length > 1 ? 's' : ''}</div>` : ''}
-                            </div>
-                            <div style="font-size: 1.3rem; font-weight: 700; color: ${transaction.type === 'contribution' ? '#48bb78' : '#e53e3e'};">
-                                ${transaction.type === 'contribution' ? '+' : '-'}${formatCurrency(transaction.amount)}
-                            </div>
-                        </div>
-                        <div style="font-size: 0.9rem; color: #718096; margin-top: 8px; line-height: 1.6;">
-                            ${transaction.paymentMethod ? `<strong>Payment Method:</strong> ${transaction.paymentMethod}<br>` : ''}
-                            ${transaction.transactionId ? `<strong>Transaction ID:</strong> ${transaction.transactionId}<br>` : ''}
-                            <strong>Date:</strong> ${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}
-                        </div>
-                        <div class="transaction-status status-${transaction.status}" style="margin-top: 12px;">
-                            ${transaction.status === 'pending' ? '⏳ PENDING' : transaction.status === 'approved' ? '✅ APPROVED' : '❌ REJECTED'}
-                        </div>
-                    `;
-                    
-                    container.appendChild(card);
-                });
-                
-            } catch (error) {
-                console.error('Transaction loading error:', error);
-                container.innerHTML = `
-                    <div class="card" style="text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
-                        <h3 style="color: #e53e3e; margin-bottom: 10px;">Error Loading Transactions</h3>
-                        <p style="color: #718096;">${error.message}</p>
-                    </div>
-                `;
-            }
+    const container = document.getElementById('transactions-list');
+    container.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>Loading...</div>';
+    
+    try {
+        const q = query(
+            collection(db, 'transactions'),
+            where('userId', '==', currentUser.uid)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            container.innerHTML = `
+                <div class="card" style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📜</div>
+                    <h3 style="color: #4a5568; margin-bottom: 10px;">No Transactions Yet</h3>
+                    <p style="color: #718096;">Your transaction history will appear here.</p>
+                </div>
+            `;
+            return;
         }
+        
+        container.innerHTML = '';
+        
+        // Get transactions and sort in JavaScript instead
+        const transactions = [];
+        querySnapshot.forEach((doc) => {
+            transactions.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        // Sort by timestamp in JavaScript
+        transactions.sort((a, b) => {
+            const timeA = a.timestamp?.toDate?.() || new Date(0);
+            const timeB = b.timestamp?.toDate?.() || new Date(0);
+            return timeB - timeA; // Newest first
+        });
+        
+        // Render transactions
+        transactions.forEach((transaction) => {
+            const card = document.createElement('div');
+            card.className = `transaction-card ${transaction.type}`;
+            
+            const timestamp = transaction.timestamp?.toDate?.() || new Date();
+            
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: #4a5568;">${transaction.type === 'contribution' ? '💰 Contribution' : '💸 Withdrawal'}</div>
+                        ${transaction.days?.length ? `<div style="font-size: 0.8rem; color: #667eea; margin-top: 4px; font-weight: 600;">${transaction.days.length} day${transaction.days.length > 1 ? 's' : ''}</div>` : ''}
+                    </div>
+                    <div style="font-size: 1.3rem; font-weight: 700; color: ${transaction.type === 'contribution' ? '#48bb78' : '#e53e3e'};">
+                        ${transaction.type === 'contribution' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                    </div>
+                </div>
+                <div style="font-size: 0.9rem; color: #718096; margin-top: 8px; line-height: 1.6;">
+                    ${transaction.paymentMethod ? `<strong>Payment Method:</strong> ${transaction.paymentMethod}<br>` : ''}
+                    ${transaction.transactionId ? `<strong>Transaction ID:</strong> ${transaction.transactionId}<br>` : ''}
+                    <strong>Date:</strong> ${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}
+                </div>
+                <div class="transaction-status status-${transaction.status}" style="margin-top: 12px;">
+                    ${transaction.status === 'pending' ? '⏳ PENDING' : transaction.status === 'approved' ? '✅ APPROVED' : '❌ REJECTED'}
+                </div>
+            `;
+            
+            container.appendChild(card);
+        });
+        
+    } catch (error) {
+        console.error('Transaction loading error:', error);
+        container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
+                <h3 style="color: #e53e3e; margin-bottom: 10px;">Error Loading Transactions</h3>
+                <p style="color: #718096;">${error.message}</p>
+            </div>
+        `;
+    }
+}
 
         // Payment Methods Page
         async function loadPaymentMethods() {
@@ -3382,6 +3661,31 @@ await updateBiometricStatus();
             }
         };
 
+        document.getElementById('add-mobile-money-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const provider = document.getElementById('momo-provider').value;
+            const number = document.getElementById('momo-number').value;
+            const name = document.getElementById('momo-name').value;
+            
+            try {
+                const methods = userData.paymentMethods || { mobileMoney: [], crypto: [], bank: [] };
+                methods.mobileMoney.push({ provider, number, name });
+                
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    'paymentMethods.mobileMoney': methods.mobileMoney
+                });
+                
+                userData.paymentMethods = methods;
+                
+                e.target.reset();
+                loadPaymentMethods();
+                showAlert('Mobile money account added!', 'success');
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        });
+
         document.getElementById('add-crypto-wallet-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -3431,30 +3735,6 @@ await updateBiometricStatus();
                 showAlert('Error: ' + error.message, 'error');
             }
         });
-        document.getElementById('add-mobile-money-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const provider = document.getElementById('momo-provider').value;
-    const number = document.getElementById('momo-number').value;
-    const name = document.getElementById('momo-name').value;
-    
-    try {
-        const methods = userData.paymentMethods || { mobileMoney: [], crypto: [], bank: [] };
-        methods.mobileMoney.push({ provider, number, name });
-        
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-            'paymentMethods.mobileMoney': methods.mobileMoney
-        });
-        
-        userData.paymentMethods = methods;
-        
-        e.target.reset();
-        loadPaymentMethods();
-        showAlert('Mobile money account added!', 'success');
-    } catch (error) {
-        showAlert('Error: ' + error.message, 'error');
-    }
-});
 
         // KYC Page
         document.getElementById('terms-checkbox').addEventListener('change', (e) => {
@@ -3747,6 +4027,19 @@ await updateBiometricStatus();
             }
         });
 
+        // Dark Mode Toggle
+        const toggle = document.getElementById('dark-mode-toggle');
+        toggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            toggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            toggle.textContent = '☀️';
+        }
+
         // Close modals on outside click
         window.addEventListener('click', (e) => {
             const modals = document.querySelectorAll('.modal');
@@ -3763,189 +4056,16 @@ await updateBiometricStatus();
                 mediaStream.getTracks().forEach(track => track.stop());
             }
         });
-        // Google Sign-In Handlers
-document.getElementById('google-signin-btn')?.addEventListener('click', async () => {
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        
-        // Check if user exists in database
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        
-        if (!userDoc.exists()) {
-            showAlert('No account found. Please sign up first.', 'error', 'auth-alert');
-            await signOut(auth);
-            return;
-        }
-        
-        showAlert('Sign in successful!', 'success', 'auth-alert');
-    } catch (error) {
-        showAlert(error.message, 'error', 'auth-alert');
-    }
-});
-
-document.getElementById('google-signup-btn')?.addEventListener('click', async () => {
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        
-        // Check if user already exists
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        
-        if (userDoc.exists()) {
-            showAlert('Account already exists. Please sign in.', 'error', 'auth-alert');
-            return;
-        }
-        
-        // Get referral code from input
-        const referralCode = document.getElementById('referral-code-input').value.trim().toUpperCase();
-        let referredByUid = null;
-        
-        if (referralCode) {
-            const q = query(collection(db, 'users'), where('referralCode', '==', referralCode));
-            const snapshot = await getDocs(q);
-            
-            if (!snapshot.empty) {
-                referredByUid = snapshot.docs[0].id;
-            }
-        }
-        
-        // Create user document
-        const names = user.displayName?.split(' ') || ['', ''];
-        await setDoc(doc(db, 'users', user.uid), {
-            firstName: names[0] || 'User',
-            surname: names[1] || 'Name',
-            email: user.email,
-            createdAt: serverTimestamp(),
-            balance: 0,
-            totalContributions: 0,
-            vipLevel: -1,
-            kycStatus: 'pending',
-            rates: {},
-            contributedDays: {},
-            referralCode: generateReferralCode(),
-            referredBy: referredByUid,
-            referrals: [],
-            referralEarnings: 0,
-            withdrawalPassword: generateReferralCode(), // Temporary password
-            withdrawalAttempts: 0,
-            lockoutUntil: null,
-            notifications: {
-                email: true,
-                sms: true,
-                security: true
-            },
-            paymentMethods: {
-                mobileMoney: [],
-                crypto: [],
-                bank: []
-            }
-        });
-        
-        if (referredByUid) {
-            const referrerDoc = await getDoc(doc(db, 'users', referredByUid));
-            if (referrerDoc.exists()) {
-                const referrerData = referrerDoc.data();
-                const updatedReferrals = [...(referrerData.referrals || []), user.uid];
-                await updateDoc(doc(db, 'users', referredByUid), {
-                    referrals: updatedReferrals
-                });
-            }
-        }
-        
-        showAlert('Account created successfully with Google!', 'success', 'auth-alert');
-    } catch (error) {
-        showAlert(error.message, 'error', 'auth-alert');
-    }
-});
-
-// Biometric Sign-In
-document.getElementById('biometric-signin-btn')?.addEventListener('click', signInWithBiometric);
-
-// Setup Biometric
-document.getElementById('setup-biometric-btn')?.addEventListener('click', async () => {
-    try {
-        document.getElementById('setup-biometric-btn').disabled = true;
-        document.getElementById('setup-biometric-btn').textContent = 'Setting up...';
-        
-        await registerBiometric();
-        
-        // Store email for biometric login
-        localStorage.setItem('biometric_email', userData.email);
-        localStorage.setItem('biometric_temp_pass', btoa(userData.withdrawalPassword));
-        
-        showAlert('Fingerprint authentication enabled successfully!', 'success');
-        updateBiometricStatus();
-    } catch (error) {
-        showAlert('Failed to set up fingerprint: ' + error.message, 'error');
-    } finally {
-        document.getElementById('setup-biometric-btn').disabled = false;
-        document.getElementById('setup-biometric-btn').innerHTML = '<span style="font-size: 1.2rem; margin-right: 8px;">👆</span>Set Up Fingerprint Authentication';
-    }
-});
-
-// Remove Biometric
-document.getElementById('remove-biometric-btn')?.addEventListener('click', async () => {
-    if (!confirm('Are you sure you want to remove fingerprint authentication?')) return;
-    
-    try {
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-            biometricEnabled: false,
-            biometricCredentialId: null
-        });
-        
-        userData.biometricEnabled = false;
-        localStorage.removeItem('biometric_email');
-        localStorage.removeItem('biometric_temp_pass');
-        
-        showAlert('Fingerprint authentication removed', 'success');
-        updateBiometricStatus();
-    } catch (error) {
-        showAlert('Error: ' + error.message, 'error');
-    }
-});
-
-// Withdrawal Auth Method Selection
-document.querySelectorAll('.auth-method-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.auth-method-option').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        
-        selectedWithdrawalAuthMethod = option.dataset.auth;
-        
-        if (selectedWithdrawalAuthMethod === 'password') {
-            document.getElementById('password-auth-container').style.display = 'block';
-            document.getElementById('fingerprint-auth-container').style.display = 'none';
-            biometricAuthenticated = false;
-        } else {
-            document.getElementById('password-auth-container').style.display = 'none';
-            document.getElementById('fingerprint-auth-container').style.display = 'block';
-            biometricAuthenticated = false;
-        }
-    });
-});
-
-// Authenticate Fingerprint for Withdrawal
-document.getElementById('authenticate-fingerprint-btn')?.addEventListener('click', async () => {
-    try {
-        const authenticated = await authenticateWithBiometric();
-        if (authenticated) {
-            biometricAuthenticated = true;
-            document.getElementById('fingerprint-status').classList.add('enabled');
-            document.getElementById('fingerprint-status').innerHTML = `
-                <span style="font-size: 1.5rem;">✅</span>
-                <span>Fingerprint authenticated successfully</span>
-            `;
-            showAlert('Fingerprint authenticated!', 'success');
-        } else {
-            showAlert('Fingerprint authentication failed', 'error');
-        }
-    } catch (error) {
-        showAlert('Authentication error: ' + error.message, 'error');
-    }
-});
 
         console.log('SusuPay Enhanced System Initialized - All Features Loaded ✅');
+        // Debug: Check if pages exist
+console.log('Pages check:', {
+    transactions: !!document.getElementById('transactions-page'),
+    paymentMethods: !!document.getElementById('payment-methods-page'),
+    kyc: !!document.getElementById('kyc-page'),
+    settings: !!document.getElementById('settings-page'),
+    report: !!document.getElementById('report-page')
+});
     </script>
 </body>
 </html>
